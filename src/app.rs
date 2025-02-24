@@ -1,6 +1,8 @@
 #![allow(dead_code)]
 use std::time::{Duration, Instant};
 
+use crate::scramble::generate_scramble;
+
 pub const INSPECTION_TIME: u64 = 15;
 
 pub enum Penalty {
@@ -51,6 +53,7 @@ pub struct App {
     pub exiting: bool,
 
     pub timer_state: TimerState,
+    pub current_scramble: String,
 
     pub current_session: usize,
 
@@ -64,6 +67,7 @@ impl App {
             show_help: false,
             exiting: false,
             timer_state: TimerState::Idle { time: Duration::from_secs(0) },
+            current_scramble: generate_scramble(),
             current_session: 0,
             selected_solve: 0,
         }
