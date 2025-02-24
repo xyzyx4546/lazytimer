@@ -1,4 +1,5 @@
 use crate::app::{INSPECTION_TIME, App, TimerState};
+use crate::scramble::generate_scramble;
 use crossterm::event::{poll, read, Event, KeyCode, KeyEvent, KeyEventKind};
 use std::io::Result;
 use std::time::{Duration, Instant};
@@ -6,6 +7,7 @@ use std::time::{Duration, Instant};
 fn handle_input(app: &mut App, code: KeyCode, kind: KeyEventKind) {
     if let TimerState::Running { start } = app.timer_state {
         app.timer_state = TimerState::Idle { time: start.elapsed() };
+        app.current_scramble = generate_scramble();
         return;
     }
     match (code, kind) {

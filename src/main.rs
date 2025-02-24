@@ -7,6 +7,7 @@ use std::process::exit;
 
 mod app;
 mod events;
+mod scramble;
 mod ui;
 
 fn setup_keyboard_protocol() -> Result<()> {
