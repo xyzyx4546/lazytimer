@@ -7,17 +7,39 @@ use widgets::*;
 
 fn draw_timer(frame: &mut Frame, app: &App) {
     if !matches!(app.timer_state, TimerState::Idle { .. }) {
-        frame.render_widget(TimerWidget::new(&app.timer_state), frame.area());
+        frame.render_widget(TimerWidget::new(&app), frame.area());
         return;
     }
 
-    let layout = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([Constraint::Length(3), Constraint::Min(0)])
+    let main_layout = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Length(20),
+            Constraint::Length(1),
+            Constraint::Min(0),
+        ])
         .split(frame.area());
 
-    frame.render_widget(ScrambleWidget::new(&app.current_scramble), layout[0]);
-    frame.render_widget(TimerWidget::new(&app.timer_state), layout[1]);
+    let left_layout = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Length(3), Constraint::Min(0)])
+        .split(main_layout[0]);
+
+    let right_layout = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Length(3), Constraint::Min(0)])
+        .split(main_layout[2]);
+
+    frame.render_widget(
+        SessionWidget::new(&app),
+        left_layout[0],
+    );
+    frame.render_widget(
+        HistoryWidget::new(&app),
+        left_layout[1],
+    );
+    frame.render_widget(ScrambleWidget::new(&app), right_layout[0]);
+    frame.render_widget(TimerWidget::new(&app), right_layout[1]);
 }
 
 fn draw_statistics(frame: &mut Frame, _app: &App) {
@@ -25,11 +47,10 @@ fn draw_statistics(frame: &mut Frame, _app: &App) {
         .block(
             Block::default()
                 .title("Statistics")
-                .title_alignment(Alignment::Left)
                 .borders(Borders::ALL)
                 .border_type(BorderType::Rounded),
         )
-        .alignment(Alignment::Center);
+        .centered();
     frame.render_widget(paragraph, frame.area());
 }
 

@@ -2,31 +2,30 @@ use ratatui::{prelude::*, widgets::*};
 
 use crate::app::App;
 
-pub struct ScrambleWidget {
-    scramble: String,
+pub struct SessionWidget {
+    name: String,
 }
 
-impl ScrambleWidget {
-    pub fn new(app: &App) -> ScrambleWidget {
-        ScrambleWidget {
-            scramble: app.current_scramble.clone(),
+impl SessionWidget {
+    pub fn new(app: &App) -> Self {
+        Self {
+            name: app.current_session.name.clone(),
         }
     }
 }
 
-impl Widget for ScrambleWidget {
+impl Widget for SessionWidget {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let block = Block::default()
-            .title("Scramble")
+            .title("Session")
             .borders(Borders::ALL)
             .border_type(BorderType::Rounded);
 
         let inner = block.inner(area);
         block.render(area, buf);
 
-        Paragraph::new(self.scramble)
+        Paragraph::new(self.name)
             .centered()
-            .style(Style::new().fg(Color::Magenta))
             .render(inner, buf);
     }
 }
