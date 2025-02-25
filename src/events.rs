@@ -1,4 +1,4 @@
-use crate::app::{INSPECTION_TIME, App, TimerState};
+use crate::app::{App, Penalty, Screen, TimerState, INSPECTION_TIME};
 use crate::scramble::generate_scramble;
 use crossterm::event::{poll, read, Event, KeyCode, KeyEvent, KeyEventKind};
 use std::io::Result;
@@ -6,13 +6,30 @@ use std::time::{Duration, Instant};
 
 fn handle_input(app: &mut App, code: KeyCode, kind: KeyEventKind) {
     if let TimerState::Running { start } = app.timer_state {
-        app.timer_state = TimerState::Idle { time: start.elapsed() };
+        let time = start.elapsed();
+        app.timer_state = TimerState::Idle { time };
+        app.add_solve(time);
         app.current_scramble = generate_scramble();
         return;
     }
     match (code, kind) {
         (KeyCode::Char('q'), KeyEventKind::Press) => app.exiting = true,
         (KeyCode::Tab, KeyEventKind::Press) => app.toggle_screen(),
+
+        (KeyCode::Char('+'), KeyEventKind::Press) => {
+            if matches!(app.current_screen, Screen::Timer) && matches!(app.timer_state, TimerState::Idle { .. } ) {
+                if let Some(solve) = app.current_session.solves.last_mut() {
+                    solve.penalty.toggle(Penalty::PlusTwo);
+                }
+            }
+        }
+        (KeyCode::Char('-'), KeyEventKind::Press) => {
+            if matches!(app.current_screen, Screen::Timer) && matches!(app.timer_state, TimerState::Idle { .. } ) {
+                if let Some(solve) = app.current_session.solves.last_mut() {
+                    solve.penalty.toggle(Penalty::Dnf);
+                }
+            }
+        }
 
         (KeyCode::Char(' '), KeyEventKind::Press) => {
             app.timer_state = match app.timer_state {

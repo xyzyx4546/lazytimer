@@ -1,4 +1,4 @@
-use crate::app::{TimerState, INSPECTION_TIME};
+use crate::app::{App, TimerState, INSPECTION_TIME};
 use ratatui::{prelude::*, widgets::*};
 use tui_widgets::big_text::*;
 
@@ -8,8 +8,8 @@ pub struct TimerWidget {
 }
 
 impl TimerWidget {
-    pub fn new(timer_state: &TimerState) -> TimerWidget {
-        let (text, style) = match timer_state {
+    pub fn new(app: &App) -> TimerWidget {
+        let (text, style) = match app.timer_state {
             TimerState::Idle { time } => (format!("{:.2}", time.as_secs_f64()), Style::default()),
 
             TimerState::PreInspection { time } => (
@@ -46,7 +46,6 @@ impl Widget for TimerWidget {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let block = Block::default()
             .title("Timer")
-            .title_alignment(Alignment::Left)
             .borders(Borders::ALL)
             .border_type(BorderType::Rounded);
 
