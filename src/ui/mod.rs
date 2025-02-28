@@ -22,7 +22,11 @@ fn draw_timer(frame: &mut Frame, app: &App) {
 
     let left_layout = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(3), Constraint::Min(0)])
+        .constraints([
+            Constraint::Length(3),
+            Constraint::Length(5),
+            Constraint::Min(0),
+        ])
         .split(main_layout[0]);
 
     let right_layout = Layout::default()
@@ -30,14 +34,9 @@ fn draw_timer(frame: &mut Frame, app: &App) {
         .constraints([Constraint::Length(3), Constraint::Min(0)])
         .split(main_layout[2]);
 
-    frame.render_widget(
-        SessionWidget::new(&app),
-        left_layout[0],
-    );
-    frame.render_widget(
-        HistoryWidget::new(&app),
-        left_layout[1],
-    );
+    frame.render_widget(SessionWidget::new(&app), left_layout[0]);
+    frame.render_widget(AverageWidget::new(&app), left_layout[1]);
+    frame.render_widget(HistoryWidget::new(&app), left_layout[2]);
     frame.render_widget(ScrambleWidget::new(&app), right_layout[0]);
     frame.render_widget(TimerWidget::new(&app), right_layout[1]);
 }
