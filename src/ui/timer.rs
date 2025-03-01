@@ -18,7 +18,12 @@ impl TimerWidget {
             ),
 
             TimerState::Inspection { start } => {
-                let remaining = INSPECTION_TIME - start.elapsed().as_secs();
+                let elapsed = start.elapsed().as_secs();
+                let remaining = if elapsed >= INSPECTION_TIME {
+                    1
+                } else {
+                    INSPECTION_TIME - elapsed
+                };
                 let style = if remaining <= 5 {
                     Style::default().fg(Color::Red)
                 } else {
@@ -33,7 +38,7 @@ impl TimerWidget {
             ),
 
             TimerState::Running { start } => (
-                format!("{:.2}", start.elapsed().as_secs_f64()),
+                format!("{:.1}", start.elapsed().as_secs_f64()),
                 Style::default().fg(Color::Green),
             ),
         };

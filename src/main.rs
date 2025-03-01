@@ -1,3 +1,4 @@
+// TODO: Improve error handeling
 use crossterm::{
     event::{self, KeyboardEnhancementFlags},
     execute, terminal,
@@ -21,10 +22,7 @@ fn setup_keyboard_protocol() -> Result<()> {
 
     execute!(
         stdout(),
-        event::PushKeyboardEnhancementFlags(
-            KeyboardEnhancementFlags::REPORT_EVENT_TYPES
-                | KeyboardEnhancementFlags::REPORT_ALL_KEYS_AS_ESCAPE_CODES
-        )
+        event::PushKeyboardEnhancementFlags(KeyboardEnhancementFlags::REPORT_EVENT_TYPES)
     )?;
 
     Ok(())
@@ -34,7 +32,6 @@ fn main() -> Result<()> {
     let mut terminal = ratatui::init();
     let mut app = app::App::new();
     setup_keyboard_protocol()?;
-
 
     while !app.exiting {
         ui::draw(&app, &mut terminal)?;

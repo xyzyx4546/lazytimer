@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use std::time::{Duration, Instant};
 
-use crate::scramble::generate_scramble;
+use crate::scramble::Scramble;
 
 pub const INSPECTION_TIME: u64 = 15;
 
@@ -12,21 +12,11 @@ pub enum Penalty {
     Dnf,
 }
 
-impl Penalty {
-    pub fn toggle(&mut self, penalty: Penalty) {
-        *self = if *self == penalty {
-            Penalty::None
-        } else {
-            penalty
-        };
-    }
-}
-
 #[derive(Clone)]
 pub struct Solve {
     pub time: Duration,
     pub penalty: Penalty,
-    pub scramble: String,
+    pub scramble: Scramble,
     pub timestamp: Instant,
 }
 
@@ -38,8 +28,17 @@ impl Solve {
             Penalty::Dnf => None,
         }
     }
+
+    pub fn toggle_panalty(&mut self, penalty: Penalty) {
+        self.penalty = if self.penalty == penalty {
+            Penalty::None
+        } else {
+            penalty
+        };
+    }
 }
 
+// TODO: put sessions in its own module
 pub struct Session {
     pub name: String,
     pub solves: Vec<Solve>,
@@ -101,7 +100,7 @@ pub struct App {
     pub exiting: bool,
 
     pub timer_state: TimerState,
-    pub current_scramble: String,
+    pub current_scramble: Scramble,
 
     pub current_session: Session,
 
@@ -117,7 +116,7 @@ impl App {
             timer_state: TimerState::Idle {
                 time: Duration::from_secs(0),
             },
-            current_scramble: generate_scramble(),
+            current_scramble: Scramble::new(),
             current_session: Session {
                 name: String::from("test Session"),
                 solves: vec![],
@@ -131,14 +130,5 @@ impl App {
             Screen::Timer => Screen::Statistics,
             Screen::Statistics => Screen::Timer,
         };
-    }
-
-    pub fn add_solve(&mut self, duration: Duration) {
-        self.current_session.solves.push(Solve {
-            time: duration,
-            penalty: Penalty::None,
-            scramble: self.current_scramble.clone(),
-            timestamp: Instant::now(),
-        });
     }
 }

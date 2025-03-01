@@ -1,9 +1,9 @@
 use ratatui::{prelude::*, widgets::*};
 
-use crate::app::App;
+use crate::{app::App, scramble::Scramble};
 
 pub struct ScrambleWidget {
-    scramble: String,
+    scramble: Scramble,
 }
 
 impl ScrambleWidget {
@@ -24,10 +24,9 @@ impl Widget for ScrambleWidget {
         let inner = block.inner(area);
         block.render(area, buf);
 
-        Paragraph::new(self.scramble)
+        Paragraph::new(self.scramble.to_string())
             .centered()
             .style(Style::new().fg(Color::Magenta))
             .render(inner, buf);
     }
 }
-
