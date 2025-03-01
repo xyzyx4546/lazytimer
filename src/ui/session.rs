@@ -24,9 +24,6 @@ impl Widget for SessionWidget {
         let inner = block.inner(area);
         block.render(area, buf);
 
-        Paragraph::new(self.name)
-            .centered()
-            .render(inner, buf);
+        Paragraph::new(self.name).centered().render(inner, buf);
     }
 }
-

@@ -1,56 +1,75 @@
-use crate::app::{App, Penalty, Screen, TimerState, INSPECTION_TIME};
-use crate::scramble::generate_scramble;
+use crate::app::{App, Penalty, Screen, Solve, TimerState, INSPECTION_TIME};
+use crate::scramble::Scramble;
 use crossterm::event::{poll, read, Event, KeyCode, KeyEvent, KeyEventKind};
 use std::io::Result;
 use std::time::{Duration, Instant};
 
-fn handle_input(app: &mut App, code: KeyCode, kind: KeyEventKind) {
+fn handle_key(app: &mut App, code: KeyCode, kind: KeyEventKind) {
     if let TimerState::Running { start } = app.timer_state {
         let time = start.elapsed();
         app.timer_state = TimerState::Idle { time };
-        app.add_solve(time);
-        app.current_scramble = generate_scramble();
+        app.current_session.solves.push(Solve {
+            time,
+            penalty: Penalty::None,
+            scramble: app.current_scramble.clone(),
+            timestamp: Instant::now(),
+        });
+        app.current_scramble = Scramble::new();
         return;
     }
-    match (code, kind) {
-        (KeyCode::Char('q'), KeyEventKind::Press) => app.exiting = true,
-        (KeyCode::Tab, KeyEventKind::Press) => app.toggle_screen(),
 
-        (KeyCode::Char('+'), KeyEventKind::Press) => {
-            if matches!(app.current_screen, Screen::Timer) && matches!(app.timer_state, TimerState::Idle { .. } ) {
+    if matches!(code, KeyCode::Char(' ')) {
+        match kind {
+            KeyEventKind::Press => {
+                app.timer_state = match app.timer_state {
+                    TimerState::Idle { time } => TimerState::PreInspection { time },
+                    TimerState::Inspection { start } => TimerState::PreRunning { start },
+                    TimerState::Running { start } => TimerState::Idle {
+                        time: start.elapsed(),
+                    },
+                    _ => app.timer_state.clone(),
+                };
+            }
+            KeyEventKind::Release => {
+                app.timer_state = match app.timer_state {
+                    TimerState::PreInspection { .. } => TimerState::Inspection {
+                        start: Instant::now(),
+                    },
+                    TimerState::PreRunning { .. } => TimerState::Running {
+                        start: Instant::now(),
+                    },
+                    _ => app.timer_state.clone(),
+                };
+            }
+            _ => {}
+        }
+    }
+
+    if matches!(kind, KeyEventKind::Release) {
+        return;
+    }
+
+    match code {
+        KeyCode::Char('q') => app.exiting = true,
+        KeyCode::Tab => app.toggle_screen(),
+
+        KeyCode::Char('+') => {
+            if matches!(app.current_screen, Screen::Timer)
+                && matches!(app.timer_state, TimerState::Idle { .. })
+            {
                 if let Some(solve) = app.current_session.solves.last_mut() {
-                    solve.penalty.toggle(Penalty::PlusTwo);
+                    solve.toggle_panalty(Penalty::PlusTwo);
                 }
             }
         }
-        (KeyCode::Char('-'), KeyEventKind::Press) => {
-            if matches!(app.current_screen, Screen::Timer) && matches!(app.timer_state, TimerState::Idle { .. } ) {
+        KeyCode::Char('-') => {
+            if matches!(app.current_screen, Screen::Timer)
+                && matches!(app.timer_state, TimerState::Idle { .. })
+            {
                 if let Some(solve) = app.current_session.solves.last_mut() {
-                    solve.penalty.toggle(Penalty::Dnf);
+                    solve.toggle_panalty(Penalty::Dnf);
                 }
             }
-        }
-
-        (KeyCode::Char(' '), KeyEventKind::Press) => {
-            app.timer_state = match app.timer_state {
-                TimerState::Idle { time } => TimerState::PreInspection { time },
-                TimerState::Inspection { start } => TimerState::PreRunning { start },
-                TimerState::Running { start } => TimerState::Idle {
-                    time: start.elapsed(),
-                },
-                _ => app.timer_state.clone(),
-            };
-        }
-        (KeyCode::Char(' '), KeyEventKind::Release) => {
-            app.timer_state = match app.timer_state {
-                TimerState::PreInspection { .. } => TimerState::Inspection {
-                    start: Instant::now(),
-                },
-                TimerState::PreRunning { .. } => TimerState::Running {
-                    start: Instant::now(),
-                },
-                _ => app.timer_state.clone(),
-            };
         }
         _ => {}
     }
@@ -58,7 +77,7 @@ fn handle_input(app: &mut App, code: KeyCode, kind: KeyEventKind) {
 
 pub fn handle(app: &mut App) -> Result<()> {
     if let TimerState::Inspection { start } = app.timer_state {
-        if INSPECTION_TIME - start.elapsed().as_secs() == 0 {
+        if INSPECTION_TIME - start.elapsed().as_secs() <= 0 {
             app.timer_state = TimerState::Running {
                 start: Instant::now(),
             };
@@ -66,14 +85,13 @@ pub fn handle(app: &mut App) -> Result<()> {
     }
 
     let poll_time = Duration::from_millis(match app.timer_state {
-        TimerState::Idle { .. } | TimerState::PreInspection { .. } => 1000,
-        TimerState::PreRunning { .. } | TimerState::Inspection { .. } => 200,
-        TimerState::Running { .. } => 16,
+        TimerState::Running { .. } => 100,
+        _ => 1000,
     });
 
     if poll(poll_time)? {
         if let Event::Key(KeyEvent { code, kind, .. }) = read()? {
-            handle_input(app, code, kind);
+            handle_key(app, code, kind);
         }
     }
     Ok(())

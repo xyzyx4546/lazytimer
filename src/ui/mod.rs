@@ -2,12 +2,15 @@ use crate::app::{App, Screen, TimerState};
 use ratatui::{prelude::*, widgets::*, DefaultTerminal};
 use std::io::Result;
 
-mod widgets;
-use widgets::*;
+mod average;
+mod history;
+mod scramble;
+mod session;
+mod timer;
 
 fn draw_timer(frame: &mut Frame, app: &App) {
     if !matches!(app.timer_state, TimerState::Idle { .. }) {
-        frame.render_widget(TimerWidget::new(&app), frame.area());
+        frame.render_widget(timer::TimerWidget::new(&app), frame.area());
         return;
     }
 
@@ -34,11 +37,11 @@ fn draw_timer(frame: &mut Frame, app: &App) {
         .constraints([Constraint::Length(3), Constraint::Min(0)])
         .split(main_layout[2]);
 
-    frame.render_widget(SessionWidget::new(&app), left_layout[0]);
-    frame.render_widget(AverageWidget::new(&app), left_layout[1]);
-    frame.render_widget(HistoryWidget::new(&app), left_layout[2]);
-    frame.render_widget(ScrambleWidget::new(&app), right_layout[0]);
-    frame.render_widget(TimerWidget::new(&app), right_layout[1]);
+    frame.render_widget(session::SessionWidget::new(app), left_layout[0]);
+    frame.render_widget(average::AverageWidget::new(app), left_layout[1]);
+    frame.render_widget(history::HistoryWidget::new(app), left_layout[2]);
+    frame.render_widget(scramble::ScrambleWidget::new(app), right_layout[0]);
+    frame.render_widget(timer::TimerWidget::new(app), right_layout[1]);
 }
 
 fn draw_statistics(frame: &mut Frame, _app: &App) {

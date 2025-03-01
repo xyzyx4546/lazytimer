@@ -9,7 +9,7 @@ pub struct HistoryWidget {
 impl HistoryWidget {
     pub fn new(app: &App) -> HistoryWidget {
         HistoryWidget {
-            solves: app.current_session.solves.clone()
+            solves: app.current_session.solves.clone(),
         }
     }
 }
@@ -21,8 +21,8 @@ impl Widget for HistoryWidget {
             .borders(Borders::ALL)
             .border_type(BorderType::Rounded);
 
-        // Create list items from solve times
-        let text: Text = self.solves
+        let text: Text = self
+            .solves
             .iter()
             .rev()
             .map(|solve| {
@@ -32,25 +32,19 @@ impl Widget for HistoryWidget {
                     Penalty::PlusTwo => "+2",
                     Penalty::Dnf => "DNF",
                 };
-                
+
                 Line::from(vec![
                     Span::styled(
                         format!("{:>6.2}", time_secs),
                         Style::default().fg(Color::LightGreen),
                     ),
                     Span::raw(" "),
-                    Span::styled(
-                        penalty,
-                        Style::default().fg(Color::Red),
-                    )
+                    Span::styled(penalty, Style::default().fg(Color::Red)),
                 ])
             })
             .collect::<Vec<Line>>()
             .into();
 
-        // Render as paragraph
-        Paragraph::new(text)
-            .block(block)
-            .render(area, buf);
+        Paragraph::new(text).block(block).render(area, buf);
     }
 }
