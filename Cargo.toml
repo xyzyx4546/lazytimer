@@ -5,6 +5,9 @@ edition = "2021"
 
 [dependencies]
 ratatui = "0.29.0"
-crossterm = "0.28.1"
+crossterm = "0.29.0"
 tui-widgets = "0.4.1"
 rand = "0.9.0"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+dirs = "6.0.0"
