@@ -9,6 +9,7 @@ use std::process::exit;
 mod app;
 mod events;
 mod scramble;
+mod sessions;
 mod ui;
 
 fn setup_keyboard_protocol() -> Result<()> {
@@ -34,7 +35,7 @@ fn main() -> Result<()> {
     setup_keyboard_protocol()?;
 
     while !app.exiting {
-        ui::draw(&app, &mut terminal)?;
+        ui::draw(&mut app, &mut terminal)?;
         events::handle(&mut app)?;
     }
 

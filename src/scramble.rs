@@ -1,6 +1,7 @@
 use rand::Rng;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 enum Moves {
     R,
     L,
@@ -10,14 +11,14 @@ enum Moves {
     B,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 enum Modifiers {
     None,
     Prime,
     Double,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Scramble {
     moves: Vec<(Moves, Modifiers)>,
 }
