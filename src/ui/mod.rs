@@ -1,6 +1,6 @@
+use anyhow::Result;
 use crate::app::{App, Screen};
 use ratatui::DefaultTerminal;
-use std::io::Result;
 
 mod statistics_screen;
 mod timer_screen;

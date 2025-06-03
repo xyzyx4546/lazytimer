@@ -1,11 +1,11 @@
+use anyhow::{Context, Result};
 use crate::app::{App, Screen, TimerState, INSPECTION_TIME};
 use crate::scramble::Scramble;
 use crate::sessions::{save_sessions, Penalty, Solve};
 use crossterm::event::{poll, read, Event, KeyCode, KeyEvent, KeyEventKind};
-use std::io::Result;
 use std::time::{Duration, Instant, SystemTime};
 
-fn handle_key(app: &mut App, code: KeyCode, kind: KeyEventKind) {
+fn handle_key(app: &mut App, code: KeyCode, kind: KeyEventKind) -> Result<()> {
     if let TimerState::Running { start } = app.timer_state {
         let time = start.elapsed();
         app.timer_state = TimerState::Idle { time };
@@ -17,7 +17,7 @@ fn handle_key(app: &mut App, code: KeyCode, kind: KeyEventKind) {
             timestamp: SystemTime::now(),
         });
         app.current_scramble = Scramble::new();
-        return;
+        return Ok(());
     }
 
     if matches!(code, KeyCode::Char(' ')) {
@@ -48,7 +48,7 @@ fn handle_key(app: &mut App, code: KeyCode, kind: KeyEventKind) {
     }
 
     if matches!(kind, KeyEventKind::Release) {
-        return;
+        return Ok(());
     }
 
     match code {
@@ -84,10 +84,11 @@ fn handle_key(app: &mut App, code: KeyCode, kind: KeyEventKind) {
             }
         }
         KeyCode::Char('s') => {
-            save_sessions(&app.sessions);
+            save_sessions(&app.sessions).context("Failed to save sessions")?;
         }
         _ => {}
     }
+    Ok(())
 }
 
 pub fn handle(app: &mut App) -> Result<()> {
@@ -101,7 +102,7 @@ pub fn handle(app: &mut App) -> Result<()> {
 
     if matches!(app.timer_state, TimerState::Idle { .. }) || poll(Duration::from_millis(100))? {
         if let Event::Key(KeyEvent { code, kind, .. }) = read()? {
-            handle_key(app, code, kind);
+            handle_key(app, code, kind)?;
         }
     }
     Ok(())

@@ -1,3 +1,4 @@
+use anyhow::{Context, Result};
 use std::time::{Duration, Instant};
 
 use crate::{
@@ -33,8 +34,8 @@ pub struct App {
 }
 
 impl App {
-    pub fn new() -> Self {
-        App {
+    pub fn new() -> Result<Self> {
+        Ok(App {
             current_screen: Screen::Timer,
             exiting: false,
 
@@ -43,9 +44,9 @@ impl App {
             },
             current_scramble: Scramble::new(),
 
-            sessions: load_sessions(),
+            sessions: load_sessions().context("Failed to load sessions")?,
             current_session_idx: 0,
-        }
+        })
     }
 
     pub fn toggle_screen(&mut self) {
