@@ -1,10 +1,8 @@
-// TODO: Improve error handeling
 use crossterm::{
     event::{self, KeyboardEnhancementFlags},
     execute, terminal,
 };
-use std::io::{stdout, Result};
-use std::process::exit;
+use anyhow::Result;
 
 mod app;
 mod events;
@@ -14,31 +12,34 @@ mod ui;
 
 fn setup_keyboard_protocol() -> Result<()> {
     terminal::enable_raw_mode()?;
-
     if !terminal::supports_keyboard_enhancement()? {
         ratatui::restore();
-        eprintln!("Error: Terminal does not support keyboard enhancements");
-        exit(1);
+        return Err(anyhow::anyhow!("Terminal does not support keyboard enhancements"));
     }
-
     execute!(
-        stdout(),
+        std::io::stdout(),
         event::PushKeyboardEnhancementFlags(KeyboardEnhancementFlags::REPORT_EVENT_TYPES)
     )?;
-
     Ok(())
 }
 
-fn main() -> Result<()> {
+fn run() -> Result<()> {
     let mut terminal = ratatui::init();
-    let mut app = app::App::new();
+    let mut app = app::App::new()?;
     setup_keyboard_protocol()?;
 
     while !app.exiting {
         ui::draw(&mut app, &mut terminal)?;
         events::handle(&mut app)?;
     }
-
-    ratatui::restore();
     Ok(())
+}
+
+fn main() {
+    if let Err(e) = run() {
+        ratatui::restore();
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
+    }
+    ratatui::restore();
 }
