@@ -1,8 +1,8 @@
 use anyhow::{Context, Result};
 use dirs::config_dir;
 use serde::{Deserialize, Serialize};
-use std::time::{Duration, SystemTime};
 use std::fs::{create_dir_all, read_to_string, write};
+use std::time::{Duration, SystemTime};
 
 use crate::scramble::Scramble;
 
@@ -22,7 +22,7 @@ pub struct Solve {
 }
 
 impl Solve {
-    fn effective_time(&self) -> Option<Duration> {
+    pub fn effective_time(&self) -> Option<Duration> {
         match self.penalty {
             Penalty::None => Some(self.time),
             Penalty::PlusTwo => Some(self.time + Duration::from_secs(2)),
@@ -53,31 +53,41 @@ impl Session {
             .min()
     }
 
-    pub fn calculate_average(&self, num_solves: usize) -> Option<Duration> {
-        if self.solves.len() < num_solves {
-            return None;
-        }
-
-        let latest_solves = &self.solves[self.solves.len() - num_solves..];
-        let dnf_count = latest_solves
+    pub fn worst_time(&self) -> Option<Duration> {
+        self.solves
             .iter()
-            .filter(|s| s.penalty == Penalty::Dnf)
-            .count();
-        if dnf_count > 1 {
-            return None;
+            .filter_map(|solve| solve.effective_time())
+            .max()
+    }
+
+    pub fn ao(&self, k: usize) -> Vec<Option<Duration>> {
+        if k < 3 {
+            return vec![None; self.solves.len()];
         }
-
-        let mut times: Vec<_> = latest_solves.iter().map(|s| s.effective_time()).collect();
-        times.sort_by(|a, b| match (a, b) {
-            (Some(a), Some(b)) => a.cmp(b),
-            (Some(_), None) => std::cmp::Ordering::Less,
-            (None, Some(_)) => std::cmp::Ordering::Greater,
-            (None, None) => std::cmp::Ordering::Equal,
-        });
-
-        let remaining = &times[1..times.len() - 1];
-        let total = remaining.iter().copied().flatten().sum::<Duration>();
-        Some(total / remaining.len() as u32)
+        (0..self.solves.len())
+            .map(|i| {
+                if i < k - 1 {
+                    return None;
+                }
+                let start = i + 1 - k;
+                let times: Vec<Option<Duration>> = self.solves[start..=i]
+                    .iter()
+                    .map(|s| s.effective_time())
+                    .collect();
+                let num_none = times.iter().filter(|t| t.is_none()).count();
+                if num_none > 1 {
+                    return None;
+                }
+                let mut some_times: Vec<Duration> = times.iter().filter_map(|t| *t).collect();
+                if some_times.len() < k - 1 {
+                    return None;
+                }
+                some_times.sort();
+                let to_average = &some_times[1..k - 1];
+                let total = to_average.iter().sum::<Duration>();
+                Some(total / to_average.len() as u32)
+            })
+            .collect()
     }
 }
 
@@ -88,7 +98,8 @@ pub fn load_sessions() -> Result<Vec<Session>> {
 
     if config_path.exists() {
         let json = read_to_string(&config_path).context("Failed to read sessions file")?;
-        let sessions: Vec<Session> = serde_json::from_str(&json).context("Failed to parse sessions JSON")?;
+        let sessions: Vec<Session> =
+            serde_json::from_str(&json).context("Failed to parse sessions JSON")?;
         Ok(sessions)
     } else {
         let default_sessions = vec![

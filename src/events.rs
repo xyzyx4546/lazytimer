@@ -1,7 +1,7 @@
-use anyhow::{Context, Result};
 use crate::app::{App, Screen, TimerState, INSPECTION_TIME};
 use crate::scramble::Scramble;
 use crate::sessions::{save_sessions, Penalty, Solve};
+use anyhow::{Context, Result};
 use crossterm::event::{poll, read, Event, KeyCode, KeyEvent, KeyEventKind};
 use std::time::{Duration, Instant, SystemTime};
 

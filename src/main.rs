@@ -1,8 +1,8 @@
+use anyhow::Result;
 use crossterm::{
     event::{self, KeyboardEnhancementFlags},
     execute, terminal,
 };
-use anyhow::Result;
 
 mod app;
 mod events;
@@ -14,7 +14,9 @@ fn setup_keyboard_protocol() -> Result<()> {
     terminal::enable_raw_mode()?;
     if !terminal::supports_keyboard_enhancement()? {
         ratatui::restore();
-        return Err(anyhow::anyhow!("Terminal does not support keyboard enhancements"));
+        return Err(anyhow::anyhow!(
+            "Terminal does not support keyboard enhancements"
+        ));
     }
     execute!(
         std::io::stdout(),
