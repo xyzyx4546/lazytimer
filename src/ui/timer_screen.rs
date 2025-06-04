@@ -65,14 +65,14 @@ fn render_averages(app: &mut App, area: Rect, buf: &mut Buffer) {
         Line::from(vec![
             Span::raw("ao5:  "),
             Span::styled(
-                format_duration(app.current_session().calculate_average(5)),
+                format_duration(app.current_session().ao(5).last().cloned().flatten()),
                 Style::default().fg(Color::Yellow),
             ),
         ]),
         Line::from(vec![
             Span::raw("ao12: "),
             Span::styled(
-                format_duration(app.current_session().calculate_average(12)),
+                format_duration(app.current_session().ao(12).last().cloned().flatten()),
                 Style::default().fg(Color::Blue),
             ),
         ]),
