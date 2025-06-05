@@ -14,7 +14,7 @@ impl<'a> Graph<'a> {
 
 impl<'a> Widget for Graph<'a> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let session = self.app.current_session();
+        let session = self.app.selected_session();
 
         let data: Vec<(f64, f64)> = session
             .solves
