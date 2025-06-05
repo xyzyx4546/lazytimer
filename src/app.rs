@@ -17,13 +17,7 @@ pub enum TimerState {
     Running { start: Instant },
 }
 
-pub enum Screen {
-    Timer,
-    Statistics,
-}
-
 pub struct App {
-    pub current_screen: Screen,
     pub exiting: bool,
 
     pub timer_state: TimerState,
@@ -36,7 +30,6 @@ pub struct App {
 impl App {
     pub fn new() -> Result<Self> {
         Ok(App {
-            current_screen: Screen::Timer,
             exiting: false,
 
             timer_state: TimerState::Idle {
@@ -47,13 +40,6 @@ impl App {
             sessions: load_sessions().context("Failed to load sessions")?,
             current_session_idx: 0,
         })
-    }
-
-    pub fn toggle_screen(&mut self) {
-        self.current_screen = match self.current_screen {
-            Screen::Timer => Screen::Statistics,
-            Screen::Statistics => Screen::Timer,
-        };
     }
 
     pub fn current_session(&mut self) -> &mut Session {
