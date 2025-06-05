@@ -14,36 +14,98 @@ impl<'a> History<'a> {
 
 impl<'a> Widget for History<'a> {
     fn render(self, area: Rect, buf: &mut Buffer) {
+        let session = self.app.selected_session();
         let block = Block::default()
             .title("History")
             .borders(Borders::ALL)
             .border_type(BorderType::Rounded);
 
-        let text: Text = self.app
-            .current_session()
+        let inner_area = block.inner(area);
+        let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([
+                Constraint::Length(1),
+                Constraint::Length(1),
+                Constraint::Min(0),
+            ])
+            .split(inner_area);
+
+        block.render(area, buf);
+
+        let header = Line::from(vec![
+            Span::styled(
+                "solve ",
+                Style::default()
+                    .fg(Color::White)
+                    .add_modifier(Modifier::BOLD),
+            ),
+            Span::raw("│    "),
+            Span::styled(
+                "time     ",
+                Style::default()
+                    .fg(Color::Green)
+                    .add_modifier(Modifier::BOLD),
+            ),
+            Span::raw("│    "),
+            Span::styled(
+                "ao5      ",
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD),
+            ),
+            Span::raw("│    "),
+            Span::styled(
+                "ao12     ",
+                Style::default()
+                    .fg(Color::Blue)
+                    .add_modifier(Modifier::BOLD),
+            ),
+        ]);
+        Paragraph::new(header).render(chunks[0], buf);
+
+        Paragraph::new(Line::from(
+            "──────┼─────────────┼─────────────┼─────────────",
+        ))
+        .render(chunks[1], buf);
+
+        let (ao5_times, ao12_times) = (session.ao(5), session.ao(12));
+        let items: Vec<ListItem> = session
             .solves
             .iter()
+            .enumerate()
             .rev()
-            .map(|solve| {
-                let time_secs = solve.time.as_millis() as f64 / 1000.0;
-                let penalty = match solve.penalty {
-                    Penalty::None => "None",
-                    Penalty::PlusTwo => "+2",
-                    Penalty::Dnf => "DNF",
+            .map(|(index, solve)| {
+                let time = match solve.penalty {
+                    Penalty::None => format!("{:.3}", solve.time.as_millis() as f64 / 1000.0),
+                    Penalty::PlusTwo => {
+                        format!("{:.3}+", solve.time.as_millis() as f64 / 1000.0 + 2.0)
+                    }
+                    Penalty::Dnf => "-DNF-".to_string(),
                 };
+                let ao5 =
+                    ao5_times[index].map_or("-".to_string(), |d| format!("{:.3}", d.as_secs_f64()));
+                let ao12 = ao12_times[index]
+                    .map_or("-".to_string(), |d| format!("{:.3}", d.as_secs_f64()));
 
-                Line::from(vec![
-                    Span::styled(
-                        format!("{:>6.2}", time_secs),
-                        Style::default().fg(Color::LightGreen),
-                    ),
-                    Span::raw(" "),
-                    Span::styled(penalty, Style::default().fg(Color::Red)),
-                ])
+                ListItem::new(Line::from(vec![
+                    Span::raw(format!("{:<6}", index + 1)),
+                    Span::raw("│"),
+                    Span::styled(format!("{:^13}", time), Style::default().fg(Color::Green)),
+                    Span::raw("│"),
+                    Span::styled(format!("{:^13}", ao5), Style::default().fg(Color::Yellow)),
+                    Span::raw("│"),
+                    Span::styled(format!("{:^13}", ao12), Style::default().fg(Color::Blue)),
+                ]))
             })
-            .collect::<Vec<Line>>()
-            .into();
+            .collect();
 
-        Paragraph::new(text).block(block).render(area, buf);
+        let list = List::new(items).highlight_style(Style::default().bg(Color::DarkGray));
+        let mut list_state = ListState::default();
+
+        if !session.solves.is_empty() {
+            list_state.select(Some(session.solves.len() - 1 - self.app.selected_solve_idx));
+        }
+
+        StatefulWidget::render(list, chunks[2], buf, &mut list_state);
     }
 }

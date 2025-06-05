@@ -35,13 +35,13 @@ impl<'a> Widget for Session<'a> {
         let middle_area = layout[1];
         let right_area = layout[2];
 
-        let has_previous = self.app.current_session_idx > 0;
-        let has_next = self.app.current_session_idx < self.app.sessions.len() - 1;
+        let has_previous = self.app.selected_session_idx > 0;
+        let has_next = self.app.selected_session_idx < self.app.sessions.len() - 1;
 
         let left_text = if has_previous { "  <" } else { "" };
         Paragraph::new(left_text).render(left_area, buf);
 
-        Paragraph::new(self.app.current_session().name.clone())
+        Paragraph::new(self.app.selected_session().name.clone())
             .centered()
             .render(middle_area, buf);
 

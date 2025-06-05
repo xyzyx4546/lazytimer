@@ -37,24 +37,22 @@ pub fn handle_space(app: &mut App, kind: KeyEventKind) -> Result<()> {
 pub fn handle_key(app: &mut App, code: KeyCode) -> Result<()> {
     match code {
         KeyCode::Char('q') => app.exiting = true,
+
+        KeyCode::Char('h') | KeyCode::Left => app.switch_session(-1),
+        KeyCode::Char('j') | KeyCode::Down => app.switch_solve(-1),
+        KeyCode::Char('k') | KeyCode::Up => app.switch_solve(1),
+        KeyCode::Char('l') | KeyCode::Right => app.switch_session(1),
+        KeyCode::Char('g') => app.reset_selected_solve(),
+        KeyCode::Char('G') => app.selected_solve_idx = 0,
+
         KeyCode::Char('+') => {
-            if let Some(solve) = app.current_session().solves.last_mut() {
+            if let Some(solve) = app.selected_solve() {
                 solve.toggle_panalty(Penalty::PlusTwo);
             }
         }
         KeyCode::Char('-') => {
-            if let Some(solve) = app.current_session().solves.last_mut() {
+            if let Some(solve) = app.selected_solve() {
                 solve.toggle_panalty(Penalty::Dnf);
-            }
-        }
-        KeyCode::Char('h') | KeyCode::Left => {
-            if app.current_session_idx > 0 {
-                app.current_session_idx -= 1;
-            }
-        }
-        KeyCode::Char('l') | KeyCode::Right => {
-            if app.current_session_idx < app.sessions.len() - 1 {
-                app.current_session_idx += 1;
             }
         }
         KeyCode::Char('s') => {
@@ -80,7 +78,7 @@ pub fn handle(app: &mut App) -> Result<()> {
                 let time = start.elapsed();
                 app.timer_state = TimerState::Idle { time };
                 let scramble = app.current_scramble.clone();
-                app.current_session().solves.push(Solve {
+                app.add_solve(Solve {
                     time,
                     penalty: Penalty::None,
                     scramble,

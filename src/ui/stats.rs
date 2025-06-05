@@ -30,21 +30,21 @@ impl<'a> Widget for Stats<'a> {
             Line::from(vec![
                 Span::raw("Best: "),
                 Span::styled(
-                    format_duration(self.app.current_session().best_time()),
+                    format_duration(self.app.selected_session().best_time()),
                     Style::default().fg(Color::Green),
                 ),
             ]),
             Line::from(vec![
                 Span::raw("ao5:  "),
                 Span::styled(
-                    format_duration(self.app.current_session().ao(5).last().cloned().flatten()),
+                    format_duration(self.app.selected_session().ao(5).last().cloned().flatten()),
                     Style::default().fg(Color::Yellow),
                 ),
             ]),
             Line::from(vec![
                 Span::raw("ao12: "),
                 Span::styled(
-                    format_duration(self.app.current_session().ao(12).last().cloned().flatten()),
+                    format_duration(self.app.selected_session().ao(12).last().cloned().flatten()),
                     Style::default().fg(Color::Blue),
                 ),
             ]),
