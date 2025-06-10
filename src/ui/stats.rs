@@ -1,6 +1,5 @@
-use std::time::Duration;
-
 use ratatui::{prelude::*, widgets::*};
+use std::time::Duration;
 
 use crate::app::App;
 
@@ -22,33 +21,64 @@ impl<'a> Widget for Stats<'a> {
             .border_type(BorderType::Rounded);
 
         let format_duration = |duration: Option<Duration>| match duration {
-            Some(d) => format!("{:.2}", d.as_secs_f64()),
-            None => "-".to_string(),
+            Some(d) => format!("{:<11.2}", d.as_secs_f64()),
+            None => format!("{:<11}", "-"),
         };
 
-        let text = vec![
-            Line::from(vec![
-                Span::raw("Best: "),
-                Span::styled(
-                    format_duration(self.app.selected_session().best_time()),
-                    Style::default().fg(Color::Green),
-                ),
-            ]),
-            Line::from(vec![
-                Span::raw("ao5:  "),
-                Span::styled(
-                    format_duration(self.app.selected_session().ao(5).last().cloned().flatten()),
-                    Style::default().fg(Color::Yellow),
-                ),
-            ]),
-            Line::from(vec![
-                Span::raw("ao12: "),
-                Span::styled(
-                    format_duration(self.app.selected_session().ao(12).last().cloned().flatten()),
-                    Style::default().fg(Color::Blue),
-                ),
-            ]),
-        ];
+        let session = self.app.selected_session();
+        let best = session.best_time();
+        let worst = session.worst_time();
+        let best_ao5 = session.ao(5).iter().filter_map(|&x| x).min();
+        let best_ao12 = session.ao(12).iter().filter_map(|&x| x).min();
+        let solves = &session.solves;
+        let times: Vec<Duration> = solves
+            .iter()
+            .filter_map(|solve| solve.effective_time())
+            .collect();
+        let average = if !times.is_empty() {
+            let sum: f64 = times.iter().map(|d| d.as_secs_f64()).sum();
+            Some(Duration::from_secs_f64(sum / times.len() as f64))
+        } else {
+            None
+        };
+        let total = if !times.is_empty() {
+            Some(times.iter().cloned().sum())
+        } else {
+            None
+        };
+
+        let best_str = format_duration(best);
+        let worst_str = format_duration(worst);
+        let best_ao5_str = format_duration(best_ao5);
+        let best_ao12_str = format_duration(best_ao12);
+        let average_str = format_duration(average);
+        let total_str = format_duration(total);
+
+        let line1 = Line::from(vec![
+            Span::raw(" "),
+            Span::raw(format!("{:<12}", "Best:")),
+            Span::styled(best_str, Style::default().fg(Color::Green)),
+            Span::raw(format!("{:<12}", "Worst:")),
+            Span::styled(worst_str, Style::default().fg(Color::Red)),
+        ]);
+
+        let line2 = Line::from(vec![
+            Span::raw(" "),
+            Span::raw(format!("{:<12}", "Best ao5:")),
+            Span::styled(best_ao5_str, Style::default().fg(Color::Yellow)),
+            Span::raw(format!("{:<12}", "Best ao12:")),
+            Span::styled(best_ao12_str, Style::default().fg(Color::Blue)),
+        ]);
+
+        let line3 = Line::from(vec![
+            Span::raw(" "),
+            Span::raw(format!("{:<12}", "Average:")),
+            Span::styled(average_str, Style::default()),
+            Span::raw(format!("{:<12}", "Total:")),
+            Span::styled(total_str, Style::default()),
+        ]);
+
+        let text = vec![line1, line2, line3];
 
         Paragraph::new(text)
             .block(block)
