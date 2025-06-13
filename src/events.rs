@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use crossterm::event::{poll, read, Event, KeyCode, KeyEvent, KeyEventKind};
 use std::time::{Duration, Instant, SystemTime};
 
-use crate::app::{App, TimerState, INSPECTION_TIME};
+use crate::app::{App, PopupType, TimerState, INSPECTION_TIME};
 use crate::scramble::Scramble;
 use crate::sessions::{save_sessions, Penalty, Solve};
 
@@ -35,31 +35,57 @@ pub fn handle_space(app: &mut App, kind: KeyEventKind) -> Result<()> {
 }
 
 pub fn handle_key(app: &mut App, code: KeyCode) -> Result<()> {
-    match code {
-        KeyCode::Char('q') => app.exiting = true,
-
-        KeyCode::Char('h') | KeyCode::Left => app.switch_session(-1),
-        KeyCode::Char('j') | KeyCode::Down => app.switch_solve(-1),
-        KeyCode::Char('k') | KeyCode::Up => app.switch_solve(1),
-        KeyCode::Char('l') | KeyCode::Right => app.switch_session(1),
-        KeyCode::Char('g') => app.reset_selected_solve(),
-        KeyCode::Char('G') => app.selected_solve_idx = 0,
-
-        KeyCode::Char('+') => {
-            if let Some(solve) = app.selected_solve() {
-                solve.toggle_panalty(Penalty::PlusTwo);
+    if let Some(popup_type) = &app.popup {
+        if matches!(code, KeyCode::Esc) {
+            app.popup = None;
+            return Ok(());
+        }
+        match popup_type {
+            PopupType::ConfirmDelete => {
+                if matches!(code, KeyCode::Enter) {
+                    let index = app.selected_solve_idx;
+                    app.selected_solve_idx = app.selected_solve_idx.saturating_sub(1);
+                    app.selected_session().solves.remove(index);
+                    app.popup = None;
+                }
             }
+            _ => {}
         }
-        KeyCode::Char('-') => {
-            if let Some(solve) = app.selected_solve() {
-                solve.toggle_panalty(Penalty::Dnf);
+    } else {
+        match code {
+            KeyCode::Char('q') => app.exiting = true,
+            KeyCode::Char('?') => app.popup = Some(PopupType::Keybinds),
+            KeyCode::Char('d') => app.popup = Some(PopupType::ConfirmDelete),
+            KeyCode::Char('i') => {
+                if let Some(_) = app.selected_solve() {
+                    app.popup = Some(PopupType::SolveDetails);
+                }
             }
-        }
-        KeyCode::Char('s') => {
-            save_sessions(&app.sessions).context("Failed to save sessions")?;
-        }
-        _ => {}
-    };
+            KeyCode::Esc => app.popup = None,
+
+            KeyCode::Char('h') | KeyCode::Left => app.switch_session(-1),
+            KeyCode::Char('j') | KeyCode::Down => app.switch_solve(-1),
+            KeyCode::Char('k') | KeyCode::Up => app.switch_solve(1),
+            KeyCode::Char('l') | KeyCode::Right => app.switch_session(1),
+            KeyCode::Char('g') => app.reset_selected_solve(),
+            KeyCode::Char('G') => app.selected_solve_idx = 0,
+
+            KeyCode::Char('+') => {
+                if let Some(solve) = app.selected_solve() {
+                    solve.toggle_panalty(Penalty::PlusTwo);
+                }
+            }
+            KeyCode::Char('-') => {
+                if let Some(solve) = app.selected_solve() {
+                    solve.toggle_panalty(Penalty::Dnf);
+                }
+            }
+            KeyCode::Char('s') => {
+                save_sessions(&app.sessions).context("Failed to save sessions")?;
+            }
+            _ => {}
+        };
+    }
     Ok(())
 }
 
