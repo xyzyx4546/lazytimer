@@ -6,14 +6,14 @@ use std::time::{Duration, SystemTime};
 
 use crate::scramble::Scramble;
 
-#[derive(PartialEq, Serialize, Deserialize)]
+#[derive(PartialEq, Clone, Serialize, Deserialize)]
 pub enum Penalty {
     None,
     PlusTwo,
     Dnf,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Solve {
     pub time: Duration,
     pub penalty: Penalty,

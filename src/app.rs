@@ -17,6 +17,13 @@ pub enum TimerState {
     Running { start: Instant },
 }
 
+#[derive(PartialEq)]
+pub enum PopupType {
+    Keybinds,
+    ConfirmDelete,
+    SolveDetails,
+}
+
 pub struct App {
     pub exiting: bool,
 
@@ -26,6 +33,8 @@ pub struct App {
     pub sessions: Vec<Session>,
     pub selected_session_idx: usize,
     pub selected_solve_idx: usize,
+
+    pub popup: Option<PopupType>,
 }
 
 impl App {
@@ -46,6 +55,7 @@ impl App {
             sessions,
             selected_session_idx: 0,
             selected_solve_idx,
+            popup: None,
         })
     }
 
