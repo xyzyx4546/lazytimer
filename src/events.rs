@@ -3,8 +3,7 @@ use crossterm::event::{poll, read, Event, KeyCode, KeyEvent, KeyEventKind};
 use std::time::{Duration, Instant, SystemTime};
 
 use crate::app::{App, PopupType, TimerState, INSPECTION_TIME};
-use crate::scramble::Scramble;
-use crate::sessions::{save_sessions, Penalty, Solve};
+use crate::sessions::{Penalty, Solve};
 
 pub fn handle_space(app: &mut App, kind: KeyEventKind) -> Result<()> {
     match kind {
@@ -15,7 +14,7 @@ pub fn handle_space(app: &mut App, kind: KeyEventKind) -> Result<()> {
                 TimerState::Running { start } => TimerState::Idle {
                     time: start.elapsed(),
                 },
-                _ => app.timer_state.clone(),
+                _ => app.timer_state,
             };
         }
         KeyEventKind::Release => {
@@ -26,7 +25,7 @@ pub fn handle_space(app: &mut App, kind: KeyEventKind) -> Result<()> {
                 TimerState::PreRunning { .. } => TimerState::Running {
                     start: Instant::now(),
                 },
-                _ => app.timer_state.clone(),
+                _ => app.timer_state,
             };
         }
         _ => {}
@@ -53,7 +52,10 @@ pub fn handle_key(app: &mut App, code: KeyCode) -> Result<()> {
         }
     } else {
         match code {
-            KeyCode::Char('q') => app.exiting = true,
+            KeyCode::Char('q') => {
+                app.save_sessions().context("Failed to save sessions")?;
+                app.exiting = true;
+            }
             KeyCode::Char('?') => app.popup = Some(PopupType::Keybinds),
             KeyCode::Char('d') => app.popup = Some(PopupType::ConfirmDelete),
             KeyCode::Char('i') => {
@@ -79,9 +81,6 @@ pub fn handle_key(app: &mut App, code: KeyCode) -> Result<()> {
                 if let Some(solve) = app.selected_solve() {
                     solve.toggle_panalty(Penalty::Dnf);
                 }
-            }
-            KeyCode::Char('s') => {
-                save_sessions(&app.sessions).context("Failed to save sessions")?;
             }
             _ => {}
         };
@@ -110,7 +109,7 @@ pub fn handle(app: &mut App) -> Result<()> {
                     scramble,
                     timestamp: SystemTime::now(),
                 });
-                app.current_scramble = Scramble::new();
+                app.next_scramble();
             } else if matches!(code, KeyCode::Char(' ')) {
                 handle_space(app, kind)?
             } else if !matches!(kind, KeyEventKind::Release)
