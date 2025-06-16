@@ -1,72 +1,51 @@
-use rand::Rng;
-use serde::{Deserialize, Serialize};
+use rand::prelude::IndexedRandom;
 
-#[derive(Clone, Serialize, Deserialize)]
-enum Moves {
-    R,
-    L,
-    U,
-    D,
-    F,
-    B,
-}
+use crate::{app::App, sessions::PuzzleType};
 
-#[derive(Clone, Serialize, Deserialize)]
-enum Modifiers {
-    None,
-    Prime,
-    Double,
-}
-
-#[derive(Clone, Serialize, Deserialize)]
-pub struct Scramble {
-    moves: Vec<(Moves, Modifiers)>,
-}
-
-impl Scramble {
-    pub fn new() -> Self {
-        let mut rng = rand::rng();
-        let moves = (0..20)
-            .map(|_| {
-                let mv = match rng.random_range(0..6) {
-                    0 => Moves::R,
-                    1 => Moves::L,
-                    2 => Moves::U,
-                    3 => Moves::D,
-                    4 => Moves::F,
-                    _ => Moves::B,
-                };
-                let modifier = match rng.random_range(0..3) {
-                    0 => Modifiers::None,
-                    1 => Modifiers::Prime,
-                    _ => Modifiers::Double,
-                };
-                (mv, modifier)
-            })
-            .collect();
-        Scramble { moves }
+impl PuzzleType {
+    fn get_base_moves(&self) -> Vec<&'static str> {
+        match self {
+            PuzzleType::TwoByTwo => vec!["R", "U", "F"],
+            PuzzleType::ThreeByThree => vec!["R", "L", "U", "D", "F", "B"],
+        }
     }
 
-    pub fn to_string(&self) -> String {
-        self.moves
-            .iter()
-            .map(|(mv, modifier)| {
-                let mv_str = match mv {
-                    Moves::R => "R",
-                    Moves::L => "L",
-                    Moves::U => "U",
-                    Moves::D => "D",
-                    Moves::F => "F",
-                    Moves::B => "B",
-                };
-                let modifier_str = match modifier {
-                    Modifiers::None => "",
-                    Modifiers::Prime => "'",
-                    Modifiers::Double => "2",
-                };
-                format!("{}{}", mv_str, modifier_str)
-            })
-            .collect::<Vec<_>>()
-            .join(" ")
+    fn get_modifiers(&self) -> Vec<&'static str> {
+        match self {
+            PuzzleType::TwoByTwo | PuzzleType::ThreeByThree => vec!["", "'", "2"],
+        }
+    }
+
+    fn get_scramble_length(&self) -> usize {
+        match self {
+            PuzzleType::TwoByTwo => 10,
+            PuzzleType::ThreeByThree => 20,
+        }
+    }
+}
+
+impl App {
+    pub fn next_scramble(&mut self) {
+        let puzzle_type = &self.selected_session().puzzle_type;
+        let modifiers = puzzle_type.get_modifiers();
+        let scramble_length = puzzle_type.get_scramble_length();
+        let mut rng = rand::rng();
+        let mut scramble = Vec::with_capacity(scramble_length);
+        let mut last_move: Option<&str> = None;
+
+        for _ in 0..scramble_length {
+            let mut base_moves = puzzle_type.get_base_moves();
+            if let Some(prev_move) = last_move {
+                base_moves.retain(|&m| m != prev_move);
+            }
+
+            let base = *base_moves.choose(&mut rng).unwrap();
+            let modifier = *modifiers.choose(&mut rng).unwrap();
+
+            scramble.push(format!("{}{}", base, modifier));
+            last_move = Some(base);
+        }
+        
+        self.current_scramble = scramble.join(" ");
     }
 }

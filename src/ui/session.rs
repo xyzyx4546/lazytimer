@@ -41,9 +41,13 @@ impl<'a> Widget for Session<'a> {
         let left_text = if has_previous { "  <" } else { "" };
         Paragraph::new(left_text).render(left_area, buf);
 
-        Paragraph::new(self.app.selected_session().name.clone())
-            .centered()
-            .render(middle_area, buf);
+        Paragraph::new(format!(
+            "{} ({})",
+            self.app.selected_session().name.clone(),
+            self.app.selected_session().puzzle_type.to_string()
+        ))
+        .centered()
+        .render(middle_area, buf);
 
         let right_text = if has_next { ">  " } else { "" };
         Paragraph::new(right_text).render(right_area, buf);
