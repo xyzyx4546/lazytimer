@@ -31,7 +31,7 @@ impl Solve {
         }
     }
 
-    pub fn toggle_panalty(&mut self, penalty: Penalty) {
+    pub fn toggle_penalty(&mut self, penalty: Penalty) {
         self.penalty = if self.penalty == penalty {
             Penalty::None
         } else {
