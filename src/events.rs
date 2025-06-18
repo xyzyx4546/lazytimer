@@ -51,7 +51,7 @@ pub fn handle_key(app: &mut App, code: KeyCode) -> Result<()> {
                         }
                         DeletionTarget::Session => {
                             let idx = app.selected_session_idx;
-                            app.selected_session_idx -= 1;
+                            app.selected_session_idx = app.selected_session_idx.saturating_sub(1);
                             app.sessions.remove(idx);
                         }
                     }
@@ -98,9 +98,11 @@ pub fn handle_key(app: &mut App, code: KeyCode) -> Result<()> {
             }
             KeyCode::Char('?') => app.popup = Some(PopupType::Keybinds),
             KeyCode::Char('d') => {
-                app.popup = Some(PopupType::ConfirmDelete {
-                    target: DeletionTarget::Solve,
-                })
+                if let Some(_) = app.selected_solve(){
+                    app.popup = Some(PopupType::ConfirmDelete {
+                        target: DeletionTarget::Solve,
+                    })
+                }
             }
             KeyCode::Char('D') => {
                 app.popup = Some(PopupType::ConfirmDelete {
