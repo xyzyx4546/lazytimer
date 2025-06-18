@@ -67,20 +67,27 @@ pub fn draw(app: &mut App, terminal: &mut DefaultTerminal) -> Result<()> {
             frame.render_widget(popup, popup_area);
         }
 
-        if app.sessions.is_empty() {
+        if app.sessions.is_empty() && app.popup.is_none() {
             app.popup = Some(PopupType::CreateSession {
                 name_buffer: String::new(),
                 selected_puzzle_type: PuzzleType::ThreeByThree,
             });
-        } else if !matches!(app.timer_state, TimerState::Idle { .. }) {
-            frame.render_widget(timer::Timer::new(app), frame.area());
-        } else {
-            frame.render_widget(session::Session::new(app), left_layout[0]);
-            frame.render_widget(stats::Stats::new(app), left_layout[1]);
-            frame.render_widget(graph::Graph::new(app), left_layout[2]);
-            frame.render_widget(history::History::new(app), left_layout[3]);
-            frame.render_widget(scramble::Scramble::new(app), right_layout[0]);
-            frame.render_widget(timer::Timer::new(app), right_layout[1]);
+        }
+
+        if !app.sessions.is_empty() {
+            match app.timer_state {
+                TimerState::Idle { .. } => {
+                    frame.render_widget(session::Session::new(app), left_layout[0]);
+                    frame.render_widget(stats::Stats::new(app), left_layout[1]);
+                    frame.render_widget(graph::Graph::new(app), left_layout[2]);
+                    frame.render_widget(history::History::new(app), left_layout[3]);
+                    frame.render_widget(scramble::Scramble::new(app), right_layout[0]);
+                    frame.render_widget(timer::Timer::new(app), right_layout[1]);
+                }
+                _ => {
+                    frame.render_widget(timer::Timer::new(app), frame.area());
+                }
+            }
         }
 
         if let Some(popup_type) = &app.popup {
@@ -104,7 +111,7 @@ pub fn draw(app: &mut App, terminal: &mut DefaultTerminal) -> Result<()> {
                         11,
                     );
                 }
-            };
+            }
         }
     })?;
     Ok(())

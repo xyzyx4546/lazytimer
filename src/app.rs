@@ -59,12 +59,11 @@ impl App {
         };
 
         app.load_sessions().context("Failed to load sessions")?;
-        // HACK: Program panics, when app.sessions is empty
-        if app.sessions.is_empty() {
-            app.add_session(String::from("Session 1"), PuzzleType::ThreeByThree);
+
+        if !app.sessions.is_empty() {
+            app.reset_selected_solve();
+            app.next_scramble();
         }
-        app.reset_selected_solve();
-        app.next_scramble();
 
         Ok(app)
     }
