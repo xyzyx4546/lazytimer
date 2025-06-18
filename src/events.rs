@@ -129,12 +129,12 @@ pub fn handle_key(app: &mut App, code: KeyCode) -> Result<()> {
 
             KeyCode::Char('+') => {
                 if let Some(solve) = app.selected_solve_mut() {
-                    solve.toggle_panalty(Penalty::PlusTwo);
+                    solve.toggle_penalty(Penalty::PlusTwo);
                 }
             }
             KeyCode::Char('-') => {
                 if let Some(solve) = app.selected_solve_mut() {
-                    solve.toggle_panalty(Penalty::Dnf);
+                    solve.toggle_penalty(Penalty::Dnf);
                 }
             }
             _ => {}
