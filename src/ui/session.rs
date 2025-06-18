@@ -3,11 +3,11 @@ use ratatui::{prelude::*, widgets::*};
 use crate::app::App;
 
 pub struct Session<'a> {
-    app: &'a mut App,
+    app: &'a App,
 }
 
 impl<'a> Session<'a> {
-    pub fn new(app: &'a mut App) -> Self {
+    pub fn new(app: &'a App) -> Self {
         Self { app }
     }
 }
@@ -43,7 +43,7 @@ impl<'a> Widget for Session<'a> {
 
         Paragraph::new(format!(
             "{} ({})",
-            self.app.selected_session().name.clone(),
+            self.app.selected_session().name,
             self.app.selected_session().puzzle_type.to_string()
         ))
         .centered()

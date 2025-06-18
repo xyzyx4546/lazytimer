@@ -3,11 +3,11 @@ use ratatui::{prelude::*, widgets::*};
 use crate::{app::App, sessions::Penalty};
 
 pub struct History<'a> {
-    app: &'a mut App,
+    app: &'a App,
 }
 
 impl<'a> History<'a> {
-    pub fn new(app: &'a mut App) -> Self {
+    pub fn new(app: &'a App) -> Self {
         Self { app }
     }
 }
