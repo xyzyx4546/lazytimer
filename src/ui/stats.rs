@@ -4,11 +4,11 @@ use std::time::Duration;
 use crate::app::App;
 
 pub struct Stats<'a> {
-    app: &'a mut App,
+    app: &'a App,
 }
 
 impl<'a> Stats<'a> {
-    pub fn new(app: &'a mut App) -> Self {
+    pub fn new(app: &'a App) -> Self {
         Self { app }
     }
 }
@@ -42,7 +42,7 @@ impl<'a> Widget for Stats<'a> {
             None
         };
         let total = if !times.is_empty() {
-            Some(times.iter().cloned().sum())
+            Some(times.iter().sum())
         } else {
             None
         };

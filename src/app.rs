@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use std::time::{Duration, Instant};
 
-use crate::sessions::{Session, Solve};
+use crate::sessions::{PuzzleType, Session, Solve};
 
 pub const INSPECTION_TIME: u64 = 15;
 
@@ -14,10 +14,21 @@ pub enum TimerState {
     Running { start: Instant },
 }
 
+pub enum DeletionTarget {
+    Solve,
+    Session,
+}
+
 pub enum PopupType {
     Keybinds,
-    ConfirmDelete,
+    ConfirmDelete {
+        target: DeletionTarget,
+    },
     SolveDetails,
+    CreateSession {
+        name_buffer: String,
+        selected_puzzle_type: PuzzleType,
+    },
 }
 
 pub struct App {
@@ -48,19 +59,31 @@ impl App {
         };
 
         app.load_sessions().context("Failed to load sessions")?;
+        // HACK: Program panics, when app.sessions is empty
+        if app.sessions.is_empty() {
+            app.add_session(String::from("Session 1"), PuzzleType::ThreeByThree);
+        }
         app.reset_selected_solve();
         app.next_scramble();
 
         Ok(app)
     }
 
-    pub fn selected_session(&mut self) -> &mut Session {
+    pub fn selected_session(&self) -> &Session {
+        &self.sessions[self.selected_session_idx]
+    }
+
+    pub fn selected_session_mut(&mut self) -> &mut Session {
         &mut self.sessions[self.selected_session_idx]
     }
 
-    pub fn selected_solve(&mut self) -> Option<&mut Solve> {
-        let session = &mut self.sessions[self.selected_session_idx];
-        session.solves.get_mut(self.selected_solve_idx)
+    pub fn selected_solve(&self) -> Option<&Solve> {
+        self.selected_session().solves.get(self.selected_solve_idx)
+    }
+
+    pub fn selected_solve_mut(&mut self) -> Option<&mut Solve> {
+        let idx = self.selected_solve_idx;
+        self.selected_session_mut().solves.get_mut(idx)
     }
 
     pub fn add_solve(&mut self, solve: Solve) {
@@ -89,5 +112,16 @@ impl App {
         if new_idx >= 0 && (new_idx as usize) < self.selected_session().solves.len() {
             self.selected_solve_idx = new_idx as usize;
         }
+    }
+
+    pub fn add_session(&mut self, name: String, puzzle_type: PuzzleType) {
+        self.sessions.push(Session {
+            name,
+            puzzle_type,
+            solves: vec![],
+        });
+        self.selected_session_idx = self.sessions.len() - 1;
+        self.reset_selected_solve();
+        self.next_scramble();
     }
 }

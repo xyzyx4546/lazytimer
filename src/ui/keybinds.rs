@@ -10,7 +10,7 @@ impl Popup {
 
 fn line<'a>(key: &'a str, value: &'a str) -> Line<'a> {
     Line::from(vec![
-        Span::styled(format!("{:>10}", key), Style::default().fg(Color::Cyan)),
+        Span::styled(format!("{:>8}", key), Style::default().fg(Color::Cyan)),
         Span::raw(format!("  {}", value)),
     ])
 }
@@ -23,11 +23,26 @@ impl Widget for Popup {
             .border_type(BorderType::Rounded);
 
         let text = vec![
+            Line::raw(""),
             line("?", "Show keybinds"),
-            line("Esc", "Go back"),
-            line("Space", "Start timer"),
-            line("d", "Delete selected solve"),
             line("q", "Quit"),
+            line("Esc", "Close popup"),
+            line("Enter", "Confirm"),
+            line("Space", "Start/stop timer"),
+            Line::raw(""),
+            line("h / ←", "Previous session"),
+            line("j / ↓", "Previous solve"),
+            line("k / ↑", "Next solve"),
+            line("l / →", "Next session"),
+            line("g", "Go to first solve"),
+            line("G", "Go to last solve"),
+            Line::raw(""),
+            line("i", "Show solve details"),
+            line("+", "Toggle +2 penalty"),
+            line("-", "Toggle DNF penalty"),
+            line("d", "Delete selected solve"),
+            line("D", "Delete selected session"),
+            line("n", "Create new session"),
         ];
 
         Paragraph::new(text).block(block).render(area, buf);

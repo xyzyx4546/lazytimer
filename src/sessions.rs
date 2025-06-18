@@ -1,21 +1,20 @@
-#![allow(unused)]
-
 use anyhow::{Context, Result};
 use dirs::config_dir;
 use serde::{Deserialize, Serialize};
+use strum::EnumIter;
 use std::fs::{create_dir_all, read_to_string, write};
 use std::time::{Duration, SystemTime};
 
 use crate::app::App;
 
-#[derive(PartialEq, Clone, Serialize, Deserialize)]
+#[derive(PartialEq, Serialize, Deserialize)]
 pub enum Penalty {
     None,
     PlusTwo,
     Dnf,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Solve {
     pub time: Duration,
     pub penalty: Penalty,
@@ -41,17 +40,19 @@ impl Solve {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(EnumIter, PartialEq, Clone, Serialize, Deserialize)]
 pub enum PuzzleType {
-    ThreeByThree,
     TwoByTwo,
+    ThreeByThree,
+    Skewb,
 }
 
 impl PuzzleType {
     pub fn to_string(&self) -> &str {
         match self {
-            PuzzleType::ThreeByThree => "3x3",
             PuzzleType::TwoByTwo => "2x2",
+            PuzzleType::ThreeByThree => "3x3",
+            PuzzleType::Skewb => "Skewb",
         }
     }
 }
@@ -64,13 +65,6 @@ pub struct Session {
 }
 
 impl Session {
-    pub fn new(name: String, puzzle_type: PuzzleType) -> Self {
-        Self {
-            name,
-            puzzle_type,
-            solves: vec![],
-        }
-    }
     pub fn best_time(&self) -> Option<Duration> {
         self.solves
             .iter()
@@ -127,26 +121,6 @@ impl App {
             let sessions: Vec<Session> =
             serde_json::from_str(&json).context("Failed to parse sessions JSON")?;
             self.sessions = sessions;
-        } else {
-            let default_sessions = vec![
-                Session {
-                    name: String::from("Session #1"),
-                    puzzle_type: PuzzleType::ThreeByThree,
-                    solves: vec![],
-                },
-                Session {
-                    name: String::from("Session #2"),
-                    puzzle_type: PuzzleType::TwoByTwo,
-                    solves: vec![],
-                },
-                Session {
-                    name: String::from("Session #3"),
-                    puzzle_type: PuzzleType::ThreeByThree,
-                    solves: vec![],
-                },
-            ];
-            self.save_sessions().context("Failed to save default sessions")?;
-            self.sessions = default_sessions;
         }
         Ok(())
     }

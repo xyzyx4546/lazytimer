@@ -7,12 +7,14 @@ impl PuzzleType {
         match self {
             PuzzleType::TwoByTwo => vec!["R", "U", "F"],
             PuzzleType::ThreeByThree => vec!["R", "L", "U", "D", "F", "B"],
+            PuzzleType::Skewb => vec!["R", "L", "U", "B"],
         }
     }
 
     fn get_modifiers(&self) -> Vec<&'static str> {
         match self {
             PuzzleType::TwoByTwo | PuzzleType::ThreeByThree => vec!["", "'", "2"],
+            PuzzleType::Skewb => vec!["", "'"],
         }
     }
 
@@ -20,6 +22,7 @@ impl PuzzleType {
         match self {
             PuzzleType::TwoByTwo => 10,
             PuzzleType::ThreeByThree => 20,
+            PuzzleType::Skewb => 10,
         }
     }
 }

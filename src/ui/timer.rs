@@ -4,11 +4,11 @@ use tui_widgets::big_text::*;
 use crate::app::{App, TimerState, INSPECTION_TIME};
 
 pub struct Timer<'a> {
-    app: &'a mut App,
+    app: &'a App,
 }
 
 impl<'a> Timer<'a> {
-    pub fn new(app: &'a mut App) -> Self {
+    pub fn new(app: &'a App) -> Self {
         Self { app }
     }
 }

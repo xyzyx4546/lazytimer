@@ -5,11 +5,11 @@ use tui_widgets::big_text::*;
 use crate::{app::App, sessions::Penalty};
 
 pub struct Popup<'a> {
-    app: &'a mut App,
+    app: &'a App,
 }
 
 impl<'a> Popup<'a> {
-    pub fn new(app: &'a mut App) -> Self {
+    pub fn new(app: &'a App) -> Self {
         Self { app }
     }
 }
@@ -50,9 +50,9 @@ impl<'a> Widget for Popup<'a> {
         let inner = block.inner(area);
         block.render(area, buf);
 
-        let solve = self.app.selected_solve().unwrap().clone();
+        let solve = self.app.selected_solve().unwrap();
 
-        let mut ao_str = |k: usize| -> String {
+        let ao_str = |k: usize| -> String {
             self.app
                 .selected_session()
                 .ao(k)
