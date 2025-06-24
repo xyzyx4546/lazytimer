@@ -37,7 +37,11 @@ pub fn handle_space(app: &mut App, kind: KeyEventKind) -> Result<()> {
 pub fn handle_key(app: &mut App, code: KeyCode) -> Result<()> {
     if let Some(popup_type) = &mut app.popup {
         if matches!(code, KeyCode::Esc) {
-            app.popup = None;
+            if app.sessions.is_empty() {
+                app.exiting = true;
+            } else {
+                app.popup = None;
+            }
             return Ok(());
         }
         match popup_type {
@@ -98,7 +102,7 @@ pub fn handle_key(app: &mut App, code: KeyCode) -> Result<()> {
             }
             KeyCode::Char('?') => app.popup = Some(PopupType::Keybinds),
             KeyCode::Char('d') => {
-                if let Some(_) = app.selected_solve(){
+                if app.selected_solve().is_some() {
                     app.popup = Some(PopupType::ConfirmDelete {
                         target: DeletionTarget::Solve,
                     })
@@ -116,7 +120,7 @@ pub fn handle_key(app: &mut App, code: KeyCode) -> Result<()> {
                 });
             }
             KeyCode::Char('i') => {
-                if let Some(_) = app.selected_solve() {
+                if app.selected_solve().is_some() {
                     app.popup = Some(PopupType::SolveDetails);
                 }
             }
@@ -159,11 +163,10 @@ pub fn handle(app: &mut App) -> Result<()> {
             if let TimerState::Running { start } = app.timer_state {
                 let time = start.elapsed();
                 app.timer_state = TimerState::Idle { time };
-                let scramble = app.current_scramble.clone();
                 app.add_solve(Solve {
                     time,
                     penalty: Penalty::None,
-                    scramble,
+                    scramble: app.current_scramble.clone(),
                     timestamp: SystemTime::now(),
                 });
                 app.next_scramble();
