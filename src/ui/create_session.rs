@@ -54,7 +54,6 @@ impl<'a> Widget for Popup<'a> {
                         Style::default()
                             .bg(Color::Blue)
                             .fg(Color::Black)
-                            .add_modifier(Modifier::BOLD),
                     )
                 } else {
                     Span::raw(format!(" {} ", p.to_string()))

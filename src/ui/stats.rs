@@ -65,9 +65,9 @@ impl<'a> Widget for Stats<'a> {
         let line2 = Line::from(vec![
             Span::raw(" "),
             Span::raw(format!("{:<12}", "Best ao5:")),
-            Span::styled(best_ao5_str, Style::default().fg(Color::Yellow)),
+            Span::styled(best_ao5_str, Style::default().fg(Color::Blue)),
             Span::raw(format!("{:<12}", "Best ao12:")),
-            Span::styled(best_ao12_str, Style::default().fg(Color::Blue)),
+            Span::styled(best_ao12_str, Style::default().fg(Color::Cyan)),
         ]);
 
         let line3 = Line::from(vec![

@@ -32,7 +32,7 @@ impl<'a> Widget for Graph<'a> {
 
         Chart::new(vec![Dataset::default()
             .marker(symbols::Marker::Braille)
-            .style(Style::default().fg(Color::Red))
+            .style(Style::default().fg(Color::Magenta))
             .data(&data)
             .graph_type(GraphType::Line)])
         .block(

@@ -33,33 +33,13 @@ impl<'a> Widget for History<'a> {
         block.render(area, buf);
 
         let header = Line::from(vec![
-            Span::styled(
-                "solve ",
-                Style::default()
-                    .fg(Color::White)
-                    .add_modifier(Modifier::BOLD),
-            ),
+            Span::styled("solve ", Style::default().fg(Color::White)),
             Span::raw("│    "),
-            Span::styled(
-                "time     ",
-                Style::default()
-                    .fg(Color::Green)
-                    .add_modifier(Modifier::BOLD),
-            ),
+            Span::styled("time     ", Style::default().fg(Color::Green)),
             Span::raw("│    "),
-            Span::styled(
-                "ao5      ",
-                Style::default()
-                    .fg(Color::Yellow)
-                    .add_modifier(Modifier::BOLD),
-            ),
+            Span::styled("ao5      ", Style::default().fg(Color::Blue)),
             Span::raw("│    "),
-            Span::styled(
-                "ao12     ",
-                Style::default()
-                    .fg(Color::Blue)
-                    .add_modifier(Modifier::BOLD),
-            ),
+            Span::styled("ao12     ", Style::default().fg(Color::Cyan)),
         ]);
         Paragraph::new(header).render(chunks[0], buf);
 
@@ -80,7 +60,7 @@ impl<'a> Widget for History<'a> {
                     Penalty::PlusTwo => {
                         format!("{:.3}+", solve.time.as_millis() as f64 / 1000.0 + 2.0)
                     }
-                    Penalty::Dnf => "-DNF-".to_string(),
+                    Penalty::Dnf => "DNF".to_string(),
                 };
                 let ao5 =
                     ao5_times[index].map_or("-".to_string(), |d| format!("{:.3}", d.as_secs_f64()));
@@ -90,11 +70,18 @@ impl<'a> Widget for History<'a> {
                 ListItem::new(Line::from(vec![
                     Span::raw(format!("{:<6}", index + 1)),
                     Span::raw("│"),
-                    Span::styled(format!("{:^13}", time), Style::default().fg(Color::Green)),
+                    Span::styled(
+                        format!("{:^13}", time),
+                        Style::default().fg(match solve.penalty {
+                            Penalty::None => Color::Green,
+                            Penalty::PlusTwo => Color::Yellow,
+                            Penalty::Dnf => Color::Red,
+                        }),
+                    ),
                     Span::raw("│"),
-                    Span::styled(format!("{:^13}", ao5), Style::default().fg(Color::Yellow)),
+                    Span::styled(format!("{:^13}", ao5), Style::default().fg(Color::Blue)),
                     Span::raw("│"),
-                    Span::styled(format!("{:^13}", ao12), Style::default().fg(Color::Blue)),
+                    Span::styled(format!("{:^13}", ao12), Style::default().fg(Color::Cyan)),
                 ]))
             })
             .collect();

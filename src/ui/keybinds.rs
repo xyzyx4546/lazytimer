@@ -10,7 +10,7 @@ impl Popup {
 
 fn line<'a>(key: &'a str, value: &'a str) -> Line<'a> {
     Line::from(vec![
-        Span::styled(format!("{:>8}", key), Style::default().fg(Color::Cyan)),
+        Span::styled(format!("{:>8}", key), Style::default().fg(Color::Magenta)),
         Span::raw(format!("  {}", value)),
     ])
 }
