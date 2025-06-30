@@ -16,7 +16,7 @@ impl<'a> Popup<'a> {
 
 fn line(key: &str, value: String, color: Color) -> Line {
     Line::from(vec![
-        Span::styled(format!("{:>10}  ", key), Style::default().fg(Color::Cyan)),
+        Span::styled(format!("{:>10}  ", key), Style::default().fg(Color::Magenta)),
         Span::styled(value, Style::default().fg(color)),
     ])
 }
@@ -91,10 +91,10 @@ impl<'a> Widget for Popup<'a> {
             .render(layout[1], buf);
 
         let text = vec![
-            line("AO5", ao_str(5), Color::Magenta),
-            line("AO12", ao_str(12), Color::Magenta),
+            line("AO5", ao_str(5), Color::Blue),
+            line("AO12", ao_str(12), Color::Cyan),
             line("Scramble", solve.scramble.to_string(), Color::White),
-            line("Date", format_date(solve.timestamp), Color::Gray),
+            line("Date", format_date(solve.timestamp), Color::DarkGray),
         ];
 
         Paragraph::new(text).render(layout[2], buf);
