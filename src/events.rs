@@ -84,6 +84,19 @@ pub fn handle_key(app: &mut App, code: KeyCode) -> Result<()> {
                         *selected_puzzle_type = puzzle_types[next_idx].clone();
                     }
                 }
+                KeyCode::BackTab => {
+                    let puzzle_types: Vec<PuzzleType> = PuzzleType::iter().collect();
+                    if let Some(current_index) =
+                        puzzle_types.iter().position(|p| p == selected_puzzle_type)
+                    {
+                        let prev_idx = if current_index == 0 {
+                            puzzle_types.len() - 1
+                        } else {
+                            current_index - 1
+                        };
+                        *selected_puzzle_type = puzzle_types[prev_idx].clone();
+                    }
+                }
                 _ => match code {
                     KeyCode::Char(c) => name_buffer.push(c),
                     KeyCode::Backspace => {

@@ -7,14 +7,17 @@ impl PuzzleType {
         match self {
             PuzzleType::TwoByTwo => vec!["R", "U", "F"],
             PuzzleType::ThreeByThree => vec!["R", "L", "U", "D", "F", "B"],
+            PuzzleType::FourByFour => vec!["R", "L", "U", "D", "F", "B", "Rw", "Lw", "Uw", "Dw", "Fw", "Bw"],
+            PuzzleType::FiveByFive => vec!["R", "L", "U", "D", "F", "B", "Rw", "Lw", "Uw", "Dw", "Fw", "Bw"],
             PuzzleType::Skewb => vec!["R", "L", "U", "B"],
+            PuzzleType::Pyraminx => vec!["R", "L", "U", "B", "R", "L", "U", "B", "r", "l", "u", "b"],
         }
     }
 
     fn get_modifiers(&self) -> Vec<&'static str> {
         match self {
-            PuzzleType::TwoByTwo | PuzzleType::ThreeByThree => vec!["", "'", "2"],
-            PuzzleType::Skewb => vec!["", "'"],
+            PuzzleType::TwoByTwo | PuzzleType::ThreeByThree | PuzzleType::FourByFour | PuzzleType::FiveByFive => vec!["", "'", "2"],
+            PuzzleType::Skewb | PuzzleType::Pyraminx => vec!["", "'"],
         }
     }
 
@@ -22,7 +25,10 @@ impl PuzzleType {
         match self {
             PuzzleType::TwoByTwo => 10,
             PuzzleType::ThreeByThree => 20,
+            PuzzleType::FourByFour => 40,
+            PuzzleType::FiveByFive => 60,
             PuzzleType::Skewb => 10,
+            PuzzleType::Pyraminx => 10,
         }
     }
 }
@@ -42,11 +48,11 @@ impl App {
                 base_moves.retain(|&m| m != prev_move);
             }
 
-            let base = *base_moves.choose(&mut rng).unwrap();
+            let base_move = *base_moves.choose(&mut rng).unwrap();
             let modifier = *modifiers.choose(&mut rng).unwrap();
 
-            scramble.push(format!("{}{}", base, modifier));
-            last_move = Some(base);
+            scramble.push(format!("{}{}", base_move, modifier));
+            last_move = Some(base_move);
         }
         
         self.current_scramble = scramble.join(" ");

@@ -40,7 +40,12 @@ pub fn draw(app: &mut App, terminal: &mut DefaultTerminal) -> Result<()> {
 
         let right_layout = Layout::default()
             .direction(Direction::Vertical)
-            .constraints([Constraint::Length(3), Constraint::Min(0)])
+            .constraints([
+                Constraint::Length(
+                    app.current_scramble.len() as u16 / main_layout[2].width.saturating_sub(4) + 3,
+                ),
+                Constraint::Min(0),
+            ])
             .split(main_layout[2]);
 
         fn render_popup(popup: impl Widget, frame: &mut Frame, height: u16) {

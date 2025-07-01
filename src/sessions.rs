@@ -44,7 +44,10 @@ impl Solve {
 pub enum PuzzleType {
     TwoByTwo,
     ThreeByThree,
+    FourByFour,
+    FiveByFive,
     Skewb,
+    Pyraminx,
 }
 
 impl PuzzleType {
@@ -52,7 +55,10 @@ impl PuzzleType {
         match self {
             PuzzleType::TwoByTwo => "2x2",
             PuzzleType::ThreeByThree => "3x3",
+            PuzzleType::FourByFour => "4x4",
+            PuzzleType::FiveByFive => "5x5",
             PuzzleType::Skewb => "Skewb",
+            PuzzleType::Pyraminx => "Pyraminx",
         }
     }
 }
