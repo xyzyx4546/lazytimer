@@ -15,6 +15,7 @@ impl<'a> Scramble<'a> {
 impl<'a> Widget for Scramble<'a> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let block = Block::default()
+            .padding(Padding::horizontal(1))
             .title("Scramble")
             .borders(Borders::ALL)
             .border_type(BorderType::Rounded);
@@ -25,6 +26,7 @@ impl<'a> Widget for Scramble<'a> {
         Paragraph::new(self.app.current_scramble.to_string())
             .centered()
             .style(Style::new().fg(Color::Magenta))
+            .wrap(Wrap::default())
             .render(inner, buf);
     }
 }
