@@ -1,7 +1,15 @@
 [package]
 name = "lazytimer"
 version = "0.1.0"
-edition = "2021"
+license = "MIT"
+edition = "2024"
+description = "A terminal-based speedcubing timer"
+repository = "https://github.com/xyzyx4546/lazytimer"
+homepage = "https://github.com/xyzyx4546/lazytimer"
+readme = "README.md"
+keywords = ["timer", "tui", "terminal", "speedcube"]
+categories = ["command-line-utilities"]
+authors = ["David Ehrhardt <d.ehrhardt@proton.me>"]
 
 [dependencies]
 ratatui = "0.29.0"
