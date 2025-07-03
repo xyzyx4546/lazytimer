@@ -15,14 +15,13 @@ A terminal-based speedcubing timer written in Rust.
 
 ## Installation
 
-```bash
-# Clone the repository
-git clone https://github.com/xyzyx4546/lazytimer.git
-cd lazytimer
+Make sure your terminal supports the
+[kitty keyboard protocol](https://sw.kovidgoyal.net/kitty/keyboard-protocol/).
 
-# Install and run the application
-cargo install --path .
-lazytimer
+You can then install lazytimer using `cargo`
+
+```bash
+cargo install lazytimer
 ```
 
 ## Keybinds
