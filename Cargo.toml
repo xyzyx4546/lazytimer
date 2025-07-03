@@ -7,7 +7,7 @@ description = "A terminal-based speedcubing timer"
 repository = "https://github.com/xyzyx4546/lazytimer"
 homepage = "https://github.com/xyzyx4546/lazytimer"
 readme = "README.md"
-keywords = ["timer", "tui", "terminal", "speedcube"]
+keywords = ["timer", "tui", "terminal", "speedcubing"]
 categories = ["command-line-utilities"]
 authors = ["David Ehrhardt <d.ehrhardt@proton.me>"]
 
