@@ -14,7 +14,7 @@ impl<'a> Popup<'a> {
     }
 }
 
-fn line(key: &str, value: String, color: Color) -> Line {
+fn line(key: &str, value: String, color: Color) -> Line<'_> {
     Line::from(vec![
         Span::styled(format!("{:>10}  ", key), Style::default().fg(Color::Magenta)),
         Span::styled(value, Style::default().fg(color)),
