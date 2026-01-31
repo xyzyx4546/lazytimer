@@ -12,12 +12,12 @@ categories = ["command-line-utilities"]
 authors = ["David Ehrhardt <d.ehrhardt@proton.me>"]
 
 [dependencies]
-ratatui = "0.29.0"
+ratatui = "0.30.0"
 crossterm = "0.29.0"
-tui-widgets = "0.4.1"
-rand = "0.9.0"
-serde = { version = "1.0.219", features = ["derive"] }
-serde_json = "1.0.140"
+tui-widgets = "0.7.0"
+rand = "0.9.2"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
 dirs = "6.0.0"
-anyhow = "1.0.98"
-strum = { version = "0.27.1", features = ["derive"] }
+anyhow = "1.0.100"
+strum = { version = "0.27.2", features = ["derive"] }
