@@ -30,10 +30,10 @@ impl Widget for Popup {
             line("Enter", "Confirm"),
             line("Space", "Start/stop timer"),
             Line::raw(""),
-            line("h / ←", "Previous session"),
+            line("h / ←", "Previous puzzle type"),
             line("j / ↓", "Previous solve"),
             line("k / ↑", "Next solve"),
-            line("l / →", "Next session"),
+            line("l / →", "Next puzzle type"),
             line("g", "Go to first solve"),
             line("G", "Go to last solve"),
             Line::raw(""),
@@ -41,8 +41,6 @@ impl Widget for Popup {
             line("+", "Toggle +2 penalty"),
             line("-", "Toggle DNF penalty"),
             line("d", "Delete selected solve"),
-            line("D", "Delete selected session"),
-            line("n", "Create new session"),
         ];
 
         Paragraph::new(text).block(block).render(area, buf);

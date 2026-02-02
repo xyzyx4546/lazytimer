@@ -1,6 +1,5 @@
-use ratatui::{prelude::*, widgets::*};
-
 use crate::app::App;
+use ratatui::{prelude::*, widgets::*};
 
 pub struct Scramble<'a> {
     app: &'a App,

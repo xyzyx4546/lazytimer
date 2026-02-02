@@ -8,7 +8,6 @@ A terminal-based speedcubing timer written in Rust.
 
 - Timer with inspection mode
 - Support for multiple puzzle types (2x2, 3x3, 4x4, 5x5, Skewb, Pyraminx)
-- Session management
 - Solve statistics & graph
 - Scramble generation
 - Data persistence
@@ -33,15 +32,13 @@ cargo install lazytimer
 | Esc   | Close popup             |
 | Enter | Confirm                 |
 | Space | Start/stop timer        |
-| h / ← | Previous session        |
+| h / ← | Previous puzzle type    |
 | j / ↓ | Previous solve          |
 | k / ↑ | Next solve              |
-| l / → | Next session            |
+| l / → | Next puzzle type        |
 | g     | Go to first solve       |
 | G     | Go to last solve        |
 | i     | Show solve details      |
 | +     | Toggle +2 penalty       |
 | -     | Toggle DNF penalty      |
 | d     | Delete selected solve   |
-| D     | Delete selected session |
-| n     | Create new session      |

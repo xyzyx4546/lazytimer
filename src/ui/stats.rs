@@ -1,7 +1,6 @@
+use crate::app::App;
 use ratatui::{prelude::*, widgets::*};
 use std::time::Duration;
-
-use crate::app::App;
 
 pub struct Stats<'a> {
     app: &'a App,
@@ -25,12 +24,11 @@ impl<'a> Widget for Stats<'a> {
             None => format!("{:<11}", "-"),
         };
 
-        let session = self.app.selected_session();
-        let best = session.best_time();
-        let worst = session.worst_time();
-        let best_ao5 = session.ao(5).iter().filter_map(|&x| x).min();
-        let best_ao12 = session.ao(12).iter().filter_map(|&x| x).min();
-        let solves = &session.solves;
+        let best = self.app.best_time();
+        let worst = self.app.worst_time();
+        let best_ao5 = self.app.ao(5).iter().filter_map(|&x| x).min();
+        let best_ao12 = self.app.ao(12).iter().filter_map(|&x| x).min();
+        let solves = self.app.selected_session();
         let times: Vec<Duration> = solves
             .iter()
             .filter_map(|solve| solve.effective_time())

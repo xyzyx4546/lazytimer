@@ -1,22 +1,30 @@
-use rand::prelude::IndexedRandom;
-
 use crate::{app::App, sessions::PuzzleType};
+use rand::prelude::IndexedRandom;
 
 impl PuzzleType {
     fn get_base_moves(&self) -> Vec<&'static str> {
         match self {
             PuzzleType::TwoByTwo => vec!["R", "U", "F"],
             PuzzleType::ThreeByThree => vec!["R", "L", "U", "D", "F", "B"],
-            PuzzleType::FourByFour => vec!["R", "L", "U", "D", "F", "B", "Rw", "Lw", "Uw", "Dw", "Fw", "Bw"],
-            PuzzleType::FiveByFive => vec!["R", "L", "U", "D", "F", "B", "Rw", "Lw", "Uw", "Dw", "Fw", "Bw"],
+            PuzzleType::FourByFour => vec![
+                "R", "L", "U", "D", "F", "B", "Rw", "Lw", "Uw", "Dw", "Fw", "Bw",
+            ],
+            PuzzleType::FiveByFive => vec![
+                "R", "L", "U", "D", "F", "B", "Rw", "Lw", "Uw", "Dw", "Fw", "Bw",
+            ],
             PuzzleType::Skewb => vec!["R", "L", "U", "B"],
-            PuzzleType::Pyraminx => vec!["R", "L", "U", "B", "R", "L", "U", "B", "r", "l", "u", "b"],
+            PuzzleType::Pyraminx => {
+                vec!["R", "L", "U", "B", "R", "L", "U", "B", "r", "l", "u", "b"]
+            }
         }
     }
 
     fn get_modifiers(&self) -> Vec<&'static str> {
         match self {
-            PuzzleType::TwoByTwo | PuzzleType::ThreeByThree | PuzzleType::FourByFour | PuzzleType::FiveByFive => vec!["", "'", "2"],
+            PuzzleType::TwoByTwo
+            | PuzzleType::ThreeByThree
+            | PuzzleType::FourByFour
+            | PuzzleType::FiveByFive => vec!["", "'", "2"],
             PuzzleType::Skewb | PuzzleType::Pyraminx => vec!["", "'"],
         }
     }
@@ -35,7 +43,7 @@ impl PuzzleType {
 
 impl App {
     pub fn next_scramble(&mut self) {
-        let puzzle_type = &self.selected_session().puzzle_type;
+        let puzzle_type = &self.selected_puzzle_type;
         let modifiers = puzzle_type.get_modifiers();
         let scramble_length = puzzle_type.get_scramble_length();
         let mut rng = rand::rng();
@@ -54,7 +62,7 @@ impl App {
             scramble.push(format!("{}{}", base_move, modifier));
             last_move = Some(base_move);
         }
-        
+
         self.current_scramble = scramble.join(" ");
     }
 }

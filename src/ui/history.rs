@@ -1,6 +1,5 @@
-use ratatui::{prelude::*, widgets::*};
-
 use crate::{app::App, sessions::Penalty};
+use ratatui::{prelude::*, widgets::*};
 
 pub struct History<'a> {
     app: &'a App,
@@ -14,7 +13,6 @@ impl<'a> History<'a> {
 
 impl<'a> Widget for History<'a> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let session = self.app.selected_session();
         let block = Block::default()
             .title("History")
             .borders(Borders::ALL)
@@ -48,9 +46,10 @@ impl<'a> Widget for History<'a> {
         ))
         .render(chunks[1], buf);
 
-        let (ao5_times, ao12_times) = (session.ao(5), session.ao(12));
-        let items: Vec<ListItem> = session
-            .solves
+        let (ao5_times, ao12_times) = (self.app.ao(5), self.app.ao(12));
+        let items: Vec<ListItem> = self
+            .app
+            .selected_session()
             .iter()
             .enumerate()
             .rev()
@@ -89,8 +88,10 @@ impl<'a> Widget for History<'a> {
         let list = List::new(items).highlight_style(Style::default().bg(Color::DarkGray));
         let mut list_state = ListState::default();
 
-        if !session.solves.is_empty() {
-            list_state.select(Some(session.solves.len() - 1 - self.app.selected_solve_idx));
+        if !self.app.selected_session().is_empty() {
+            list_state.select(Some(
+                self.app.selected_session().len() - 1 - self.app.selected_solve_idx,
+            ));
         }
 
         StatefulWidget::render(list, chunks[2], buf, &mut list_state);

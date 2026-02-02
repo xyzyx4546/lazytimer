@@ -1,11 +1,36 @@
+use crate::app::App;
 use anyhow::{Context, Result};
 use dirs::config_dir;
 use serde::{Deserialize, Serialize};
+use std::{
+    collections::HashMap,
+    fs::{create_dir_all, read_to_string, write},
+    time::{Duration, SystemTime},
+};
 use strum::EnumIter;
-use std::fs::{create_dir_all, read_to_string, write};
-use std::time::{Duration, SystemTime};
 
-use crate::app::App;
+#[derive(Hash, EnumIter, Eq, PartialEq, Clone, Serialize, Deserialize)]
+pub enum PuzzleType {
+    TwoByTwo,
+    ThreeByThree,
+    FourByFour,
+    FiveByFive,
+    Skewb,
+    Pyraminx,
+}
+
+impl PuzzleType {
+    pub fn to_string(&self) -> &str {
+        match self {
+            PuzzleType::TwoByTwo => "2x2",
+            PuzzleType::ThreeByThree => "3x3",
+            PuzzleType::FourByFour => "4x4",
+            PuzzleType::FiveByFive => "5x5",
+            PuzzleType::Skewb => "Skewb",
+            PuzzleType::Pyraminx => "Pyraminx",
+        }
+    }
+}
 
 #[derive(PartialEq, Serialize, Deserialize)]
 pub enum Penalty {
@@ -40,46 +65,16 @@ impl Solve {
     }
 }
 
-#[derive(EnumIter, PartialEq, Clone, Serialize, Deserialize)]
-pub enum PuzzleType {
-    TwoByTwo,
-    ThreeByThree,
-    FourByFour,
-    FiveByFive,
-    Skewb,
-    Pyraminx,
-}
-
-impl PuzzleType {
-    pub fn to_string(&self) -> &str {
-        match self {
-            PuzzleType::TwoByTwo => "2x2",
-            PuzzleType::ThreeByThree => "3x3",
-            PuzzleType::FourByFour => "4x4",
-            PuzzleType::FiveByFive => "5x5",
-            PuzzleType::Skewb => "Skewb",
-            PuzzleType::Pyraminx => "Pyraminx",
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct Session {
-    pub name: String,
-    pub puzzle_type: PuzzleType,
-    pub solves: Vec<Solve>,
-}
-
-impl Session {
+impl App {
     pub fn best_time(&self) -> Option<Duration> {
-        self.solves
+        self.selected_session()
             .iter()
             .filter_map(|solve| solve.effective_time())
             .min()
     }
 
     pub fn worst_time(&self) -> Option<Duration> {
-        self.solves
+        self.selected_session()
             .iter()
             .filter_map(|solve| solve.effective_time())
             .max()
@@ -87,15 +82,15 @@ impl Session {
 
     pub fn ao(&self, k: usize) -> Vec<Option<Duration>> {
         if k < 3 {
-            return vec![None; self.solves.len()];
+            return vec![None; self.selected_session().len()];
         }
-        (0..self.solves.len())
+        (0..self.selected_session().len())
             .map(|i| {
                 if i < k - 1 {
                     return None;
                 }
                 let start = i + 1 - k;
-                let times: Vec<Option<Duration>> = self.solves[start..=i]
+                let times: Vec<Option<Duration>> = self.selected_session()[start..=i]
                     .iter()
                     .map(|s| s.effective_time())
                     .collect();
@@ -114,9 +109,7 @@ impl Session {
             })
             .collect()
     }
-}
 
-impl App {
     pub fn load_sessions(&mut self) -> Result<()> {
         let config_path = config_dir()
             .context("Config directory not found")?
@@ -124,8 +117,8 @@ impl App {
 
         if config_path.exists() {
             let json = read_to_string(&config_path).context("Failed to read sessions file")?;
-            let sessions: Vec<Session> =
-            serde_json::from_str(&json).context("Failed to parse sessions JSON")?;
+            let sessions: HashMap<PuzzleType, Vec<Solve>> =
+                serde_json::from_str(&json).context("Failed to parse sessions JSON")?;
             self.sessions = sessions;
         }
         Ok(())
@@ -136,9 +129,9 @@ impl App {
             .context("Config directory not found")?
             .join("lazytimer/sessions.json");
         create_dir_all(path.parent().context("Path has no parent")?)?;
-        let json = serde_json::to_string_pretty(&self.sessions).context("Failed to serialize sessions")?;
+        let json =
+            serde_json::to_string_pretty(&self.sessions).context("Failed to serialize sessions")?;
         write(&path, json).context("Failed to write sessions file")?;
         Ok(())
     }
 }
-

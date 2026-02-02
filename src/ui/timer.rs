@@ -1,7 +1,6 @@
+use crate::app::{App, INSPECTION_TIME, TimerState};
 use ratatui::{prelude::*, widgets::*};
 use tui_widgets::big_text::*;
-
-use crate::app::{App, TimerState, INSPECTION_TIME};
 
 pub struct Timer<'a> {
     app: &'a App,

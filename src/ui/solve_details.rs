@@ -1,8 +1,7 @@
+use crate::{app::App, sessions::Penalty};
 use ratatui::{prelude::*, widgets::*};
 use std::time::{SystemTime, UNIX_EPOCH};
 use tui_widgets::big_text::*;
-
-use crate::{app::App, sessions::Penalty};
 
 pub struct Popup<'a> {
     app: &'a App,
@@ -16,7 +15,10 @@ impl<'a> Popup<'a> {
 
 fn line(key: &str, value: String, color: Color) -> Line<'_> {
     Line::from(vec![
-        Span::styled(format!("{:>10}  ", key), Style::default().fg(Color::Magenta)),
+        Span::styled(
+            format!("{:>10}  ", key),
+            Style::default().fg(Color::Magenta),
+        ),
         Span::styled(value, Style::default().fg(color)),
     ])
 }
@@ -54,7 +56,6 @@ impl<'a> Widget for Popup<'a> {
 
         let ao_str = |k: usize| -> String {
             self.app
-                .selected_session()
                 .ao(k)
                 .get(self.app.selected_solve_idx)
                 .and_then(|r| *r)

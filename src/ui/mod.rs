@@ -1,13 +1,8 @@
+use crate::app::{App, PopupType, TimerState};
 use anyhow::Result;
-use ratatui::{prelude::*, widgets::*, DefaultTerminal};
-
-use crate::{
-    app::{App, PopupType, TimerState},
-    sessions::PuzzleType,
-};
+use ratatui::{DefaultTerminal, prelude::*, widgets::*};
 
 mod confirm_delete;
-mod create_session;
 mod graph;
 mod history;
 mod keybinds;
@@ -42,6 +37,7 @@ pub fn draw(app: &mut App, terminal: &mut DefaultTerminal) -> Result<()> {
             .direction(Direction::Vertical)
             .constraints([
                 Constraint::Length(
+                    // FIX: app crashes due to division by 0
                     app.current_scramble.len() as u16 / main_layout[2].width.saturating_sub(4) + 3,
                 ),
                 Constraint::Min(0),
@@ -72,13 +68,6 @@ pub fn draw(app: &mut App, terminal: &mut DefaultTerminal) -> Result<()> {
             frame.render_widget(popup, popup_area);
         }
 
-        if app.sessions.is_empty() && app.popup.is_none() {
-            app.popup = Some(PopupType::CreateSession {
-                name_buffer: String::new(),
-                selected_puzzle_type: PuzzleType::ThreeByThree,
-            });
-        }
-
         if !app.sessions.is_empty() {
             match app.timer_state {
                 TimerState::Idle { .. } => {
@@ -100,21 +89,11 @@ pub fn draw(app: &mut App, terminal: &mut DefaultTerminal) -> Result<()> {
                 PopupType::Keybinds => {
                     render_popup(keybinds::Popup::new(), frame, 23);
                 }
-                PopupType::ConfirmDelete { target } => {
-                    render_popup(confirm_delete::Popup::new(app, target), frame, 3);
+                PopupType::ConfirmDelete => {
+                    render_popup(confirm_delete::Popup::new(app), frame, 3);
                 }
                 PopupType::SolveDetails => {
                     render_popup(solve_details::Popup::new(app), frame, 12);
-                }
-                PopupType::CreateSession {
-                    name_buffer,
-                    selected_puzzle_type,
-                } => {
-                    render_popup(
-                        create_session::Popup::new(name_buffer, selected_puzzle_type),
-                        frame,
-                        11,
-                    );
                 }
             }
         }

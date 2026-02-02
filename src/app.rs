@@ -1,7 +1,10 @@
+use crate::sessions::{PuzzleType, Solve};
 use anyhow::{Context, Result};
-use std::time::{Duration, Instant};
-
-use crate::sessions::{PuzzleType, Session, Solve};
+use std::{
+    collections::HashMap,
+    time::{Duration, Instant},
+};
+use strum::IntoEnumIterator;
 
 pub const INSPECTION_TIME: u64 = 15;
 
@@ -13,22 +16,10 @@ pub enum TimerState {
     PreRunning { start: Instant },
     Running { start: Instant },
 }
-
-pub enum DeletionTarget {
-    Solve,
-    Session,
-}
-
 pub enum PopupType {
     Keybinds,
-    ConfirmDelete {
-        target: DeletionTarget,
-    },
+    ConfirmDelete,
     SolveDetails,
-    CreateSession {
-        name_buffer: String,
-        selected_puzzle_type: PuzzleType,
-    },
 }
 
 pub struct App {
@@ -37,8 +28,8 @@ pub struct App {
     pub timer_state: TimerState,
     pub current_scramble: String,
 
-    pub sessions: Vec<Session>,
-    pub selected_session_idx: usize,
+    pub sessions: HashMap<PuzzleType, Vec<Solve>>,
+    pub selected_puzzle_type: PuzzleType,
     pub selected_solve_idx: usize,
 
     pub popup: Option<PopupType>,
@@ -46,81 +37,80 @@ pub struct App {
 
 impl App {
     pub fn new() -> Result<Self> {
+        let mut sessions = HashMap::new();
+        for puzzle_type in PuzzleType::iter() {
+            sessions.insert(puzzle_type, Vec::new());
+        }
+
         let mut app = App {
             exiting: false,
             timer_state: TimerState::Idle {
                 time: Duration::from_secs(0),
             },
             current_scramble: String::from(""),
-            sessions: vec![],
-            selected_session_idx: 0,
+            sessions,
+            selected_puzzle_type: PuzzleType::ThreeByThree,
             selected_solve_idx: 0,
             popup: None,
         };
 
         app.load_sessions().context("Failed to load sessions")?;
-
-        if !app.sessions.is_empty() {
-            app.reset_selected_solve();
-            app.next_scramble();
-        }
+        app.reset_selected_solve();
+        app.next_scramble();
 
         Ok(app)
     }
 
-    pub fn selected_session(&self) -> &Session {
-        &self.sessions[self.selected_session_idx]
+    pub fn selected_session(&self) -> &Vec<Solve> {
+        self.sessions
+            .get(&self.selected_puzzle_type)
+            .expect("Selected puzzle type not found in sessions")
     }
 
-    pub fn selected_session_mut(&mut self) -> &mut Session {
-        &mut self.sessions[self.selected_session_idx]
+    pub fn selected_session_mut(&mut self) -> &mut Vec<Solve> {
+        self.sessions
+            .get_mut(&self.selected_puzzle_type)
+            .expect("Selected puzzle type not found in sessions")
     }
 
     pub fn selected_solve(&self) -> Option<&Solve> {
-        self.selected_session().solves.get(self.selected_solve_idx)
+        self.selected_session().get(self.selected_solve_idx)
     }
 
     pub fn selected_solve_mut(&mut self) -> Option<&mut Solve> {
         let idx = self.selected_solve_idx;
-        self.selected_session_mut().solves.get_mut(idx)
+        self.selected_session_mut().get_mut(idx)
     }
 
     pub fn add_solve(&mut self, solve: Solve) {
-        let session = &mut self.sessions[self.selected_session_idx];
-        session.solves.push(solve);
-        self.selected_solve_idx = session.solves.len() - 1;
+        let session = self.selected_session_mut();
+        session.push(solve);
+        self.selected_solve_idx = session.len() - 1;
     }
 
     pub fn reset_selected_solve(&mut self) {
-        self.selected_solve_idx = self.selected_session().solves.len().saturating_sub(1);
+        self.selected_solve_idx = self.selected_session().len().saturating_sub(1);
     }
 
     pub fn switch_session(&mut self, offset: i32) {
-        let new_idx = self.selected_session_idx as i32 + offset;
+        let puzzle_types: Vec<_> = PuzzleType::iter().collect();
 
-        if new_idx >= 0 && (new_idx as usize) < self.sessions.len() {
-            self.selected_session_idx = new_idx as usize;
-            self.reset_selected_solve();
-            self.next_scramble();
-        }
+        let current_idx = puzzle_types
+            .iter()
+            .position(|pt| pt == &self.selected_puzzle_type)
+            .unwrap_or(0);
+        let len = puzzle_types.len();
+        let new_idx = ((current_idx as i32 + offset).rem_euclid(len as i32)) as usize;
+        self.selected_puzzle_type = puzzle_types[new_idx].clone();
+        self.reset_selected_solve();
+        self.next_scramble();
     }
 
     pub fn switch_solve(&mut self, offset: isize) {
         let new_idx = self.selected_solve_idx as isize + offset;
 
-        if new_idx >= 0 && (new_idx as usize) < self.selected_session().solves.len() {
+        if new_idx >= 0 && (new_idx as usize) < self.selected_session().len() {
             self.selected_solve_idx = new_idx as usize;
         }
-    }
-
-    pub fn add_session(&mut self, name: String, puzzle_type: PuzzleType) {
-        self.sessions.push(Session {
-            name,
-            puzzle_type,
-            solves: vec![],
-        });
-        self.selected_session_idx = self.sessions.len() - 1;
-        self.reset_selected_solve();
-        self.next_scramble();
     }
 }
