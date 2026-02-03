@@ -33,15 +33,18 @@ pub fn draw(app: &mut App, terminal: &mut DefaultTerminal) -> Result<()> {
             ])
             .split(main_layout[0]);
 
+        let scramble_height = {
+            let width = main_layout[2].width.saturating_sub(4);
+            if width == 0 {
+                3
+            } else {
+                (app.current_scramble.len() as u16 / width).saturating_add(3)
+            }
+        };
+
         let right_layout = Layout::default()
             .direction(Direction::Vertical)
-            .constraints([
-                Constraint::Length(
-                    // FIX: app crashes due to division by 0
-                    app.current_scramble.len() as u16 / main_layout[2].width.saturating_sub(4) + 3,
-                ),
-                Constraint::Min(0),
-            ])
+            .constraints([Constraint::Length(scramble_height), Constraint::Min(0)])
             .split(main_layout[2]);
 
         fn render_popup(popup: impl Widget, frame: &mut Frame, height: u16) {
