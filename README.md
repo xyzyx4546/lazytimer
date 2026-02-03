@@ -14,8 +14,7 @@ A terminal-based speedcubing timer written in Rust.
 
 ## Installation
 
-Make sure your terminal supports the
-[kitty keyboard protocol](https://sw.kovidgoyal.net/kitty/keyboard-protocol/).
+Make sure your terminal supports [progressive keyboard enhancements](https://sw.kovidgoyal.net/kitty/keyboard-protocol/) (also known as the Kitty keyboard protocol).
 
 You can then install lazytimer using `cargo`
 
