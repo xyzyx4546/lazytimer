@@ -99,7 +99,7 @@ pub fn handle_key(app: &mut App, code: KeyCode) -> Result<()> {
 
 pub fn handle(app: &mut App) -> Result<()> {
     if let TimerState::Inspection { start } = app.timer_state {
-        if INSPECTION_TIME - start.elapsed().as_secs() <= 0 {
+        if start.elapsed().as_secs() >= INSPECTION_TIME {
             app.timer_state = TimerState::Running {
                 start: Instant::now(),
             };
