@@ -31,7 +31,7 @@ fn run() -> Result<()> {
     setup_keyboard_protocol()?;
 
     while !app.exiting {
-        ui::draw(&mut app, &mut terminal)?;
+        ui::draw(&app, &mut terminal)?;
         events::handle(&mut app)?;
     }
     Ok(())

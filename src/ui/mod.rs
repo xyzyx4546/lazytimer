@@ -12,26 +12,22 @@ mod solve_details;
 mod stats;
 mod timer;
 
-pub fn draw(app: &mut App, terminal: &mut DefaultTerminal) -> Result<()> {
+pub fn draw(app: &App, terminal: &mut DefaultTerminal) -> Result<()> {
     terminal.draw(|frame| {
-        let main_layout = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([
-                Constraint::Length(50),
-                Constraint::Length(1),
-                Constraint::Min(0),
-            ])
-            .split(frame.area());
+        let main_layout = Layout::horizontal([
+            Constraint::Length(50),
+            Constraint::Length(1),
+            Constraint::Min(0),
+        ])
+        .split(frame.area());
 
-        let left_layout = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([
-                Constraint::Length(3),
-                Constraint::Length(5),
-                Constraint::Length(12),
-                Constraint::Min(0),
-            ])
-            .split(main_layout[0]);
+        let left_layout = Layout::vertical([
+            Constraint::Length(3),
+            Constraint::Length(5),
+            Constraint::Length(12),
+            Constraint::Min(0),
+        ])
+        .split(main_layout[0]);
 
         let scramble_height = {
             let width = main_layout[2].width.saturating_sub(4);
@@ -42,62 +38,57 @@ pub fn draw(app: &mut App, terminal: &mut DefaultTerminal) -> Result<()> {
             }
         };
 
-        let right_layout = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Length(scramble_height), Constraint::Min(0)])
-            .split(main_layout[2]);
-
-        fn render_popup(popup: impl Widget, frame: &mut Frame, height: u16) {
-            let area = frame.area();
-            let popup_area = Layout::default()
-                .direction(Direction::Vertical)
-                .constraints([
-                    Constraint::Length((area.height.saturating_sub(height)) / 2),
-                    Constraint::Length(height),
-                    Constraint::Length((area.height.saturating_sub(height)) / 2),
-                ])
-                .split(area);
-
-            let popup_area = Layout::default()
-                .direction(Direction::Horizontal)
-                .constraints([
-                    Constraint::Length((area.width.saturating_sub(80)) / 2),
-                    Constraint::Length(80),
-                    Constraint::Length((area.width.saturating_sub(80)) / 2),
-                ])
-                .split(popup_area[1])[1];
-
-            frame.render_widget(Clear, popup_area);
-            frame.render_widget(popup, popup_area);
-        }
+        let right_layout =
+            Layout::vertical([Constraint::Length(scramble_height), Constraint::Min(0)])
+                .split(main_layout[2]);
 
         if !app.sessions.is_empty() {
             match app.timer_state {
                 TimerState::Idle { .. } => {
-                    frame.render_widget(session::Session::new(app), left_layout[0]);
-                    frame.render_widget(stats::Stats::new(app), left_layout[1]);
-                    frame.render_widget(graph::Graph::new(app), left_layout[2]);
-                    frame.render_widget(history::History::new(app), left_layout[3]);
-                    frame.render_widget(scramble::Scramble::new(app), right_layout[0]);
-                    frame.render_widget(timer::Timer::new(app), right_layout[1]);
+                    session::render(app, frame, left_layout[0]);
+                    stats::render(app, frame, left_layout[1]);
+                    graph::render(app, frame, left_layout[2]);
+                    history::render(app, frame, left_layout[3]);
+                    scramble::render(app, frame, right_layout[0]);
+                    timer::render(app, frame, right_layout[1]);
                 }
                 _ => {
-                    frame.render_widget(timer::Timer::new(app), frame.area());
+                    timer::render(app, frame, frame.area());
                 }
             }
         }
 
         if let Some(popup_type) = &app.popup {
+            let (height, width) = match popup_type {
+                PopupType::Keybinds => (21, 50),
+                PopupType::ConfirmDelete => (3, 70),
+                PopupType::SolveDetails => (12, 80),
+            };
+
+            let vertical = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([
+                    Constraint::Length((frame.area().height.saturating_sub(height)) / 2),
+                    Constraint::Length(height),
+                    Constraint::Length((frame.area().height.saturating_sub(height)) / 2),
+                ])
+                .split(frame.area())[1];
+
+            let area = Layout::default()
+                .direction(Direction::Horizontal)
+                .constraints([
+                    Constraint::Length((frame.area().width.saturating_sub(width)) / 2),
+                    Constraint::Length(width),
+                    Constraint::Length((frame.area().width.saturating_sub(width)) / 2),
+                ])
+                .split(vertical)[1];
+
+            frame.render_widget(Clear, area);
+
             match popup_type {
-                PopupType::Keybinds => {
-                    render_popup(keybinds::Popup::new(), frame, 23);
-                }
-                PopupType::ConfirmDelete => {
-                    render_popup(confirm_delete::Popup::new(app), frame, 3);
-                }
-                PopupType::SolveDetails => {
-                    render_popup(solve_details::Popup::new(app), frame, 12);
-                }
+                PopupType::Keybinds => keybinds::render(frame, area),
+                PopupType::ConfirmDelete => confirm_delete::render(app, frame, area),
+                PopupType::SolveDetails => solve_details::render(app, frame, area),
             }
         }
     })?;

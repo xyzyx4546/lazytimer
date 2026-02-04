@@ -1,31 +1,19 @@
 use crate::app::App;
 use ratatui::{prelude::*, widgets::*};
 
-pub struct Scramble<'a> {
-    app: &'a App,
-}
+pub fn render(app: &App, frame: &mut Frame, area: Rect) {
+    let block = Block::default()
+        .title("Scramble")
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .style(Style::reset())
+        .padding(Padding::horizontal(1));
 
-impl<'a> Scramble<'a> {
-    pub fn new(app: &'a App) -> Self {
-        Self { app }
-    }
-}
+    let widget = Paragraph::new(app.current_scramble.to_string())
+        .centered()
+        .style(Style::new().fg(Color::Magenta))
+        .wrap(Wrap::default())
+        .block(block);
 
-impl<'a> Widget for Scramble<'a> {
-    fn render(self, area: Rect, buf: &mut Buffer) {
-        let block = Block::default()
-            .padding(Padding::horizontal(1))
-            .title("Scramble")
-            .borders(Borders::ALL)
-            .border_type(BorderType::Rounded);
-
-        let inner = block.inner(area);
-        block.render(area, buf);
-
-        Paragraph::new(self.app.current_scramble.to_string())
-            .centered()
-            .style(Style::new().fg(Color::Magenta))
-            .wrap(Wrap::default())
-            .render(inner, buf);
-    }
+    frame.render_widget(widget, area);
 }
