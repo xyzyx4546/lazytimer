@@ -101,7 +101,7 @@ impl App {
             .unwrap_or(0);
         let len = puzzle_types.len();
         let new_idx = ((current_idx as i32 + offset).rem_euclid(len as i32)) as usize;
-        self.selected_puzzle_type = puzzle_types[new_idx].clone();
+        self.selected_puzzle_type = puzzle_types[new_idx];
         self.reset_selected_solve();
         self.next_scramble();
     }

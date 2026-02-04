@@ -9,7 +9,7 @@ use std::{
 };
 use strum::EnumIter;
 
-#[derive(Hash, EnumIter, Eq, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Hash, EnumIter, Eq, PartialEq, Copy, Clone, Serialize, Deserialize)]
 pub enum PuzzleType {
     TwoByTwo,
     ThreeByThree,
