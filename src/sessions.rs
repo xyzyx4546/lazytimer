@@ -4,6 +4,7 @@ use dirs::config_dir;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
+    fmt::{self, Display, Formatter},
     fs::{create_dir_all, read_to_string, write},
     time::{Duration, SystemTime},
 };
@@ -19,16 +20,17 @@ pub enum PuzzleType {
     Pyraminx,
 }
 
-impl PuzzleType {
-    pub fn to_string(&self) -> &str {
-        match self {
+impl Display for PuzzleType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let s = match self {
             PuzzleType::TwoByTwo => "2x2",
             PuzzleType::ThreeByThree => "3x3",
             PuzzleType::FourByFour => "4x4",
             PuzzleType::FiveByFive => "5x5",
             PuzzleType::Skewb => "Skewb",
             PuzzleType::Pyraminx => "Pyraminx",
-        }
+        };
+        write!(f, "{s}")
     }
 }
 

@@ -12,11 +12,11 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
         .map(|p| {
             if p == app.selected_puzzle_type {
                 Span::styled(
-                    format!(" {} ", p.to_string()),
+                    format!(" {} ", p),
                     Style::default().bg(Color::Blue).fg(Color::Black),
                 )
             } else {
-                Span::raw(format!(" {} ", p.to_string()))
+                Span::raw(format!(" {} ", p))
             }
         })
         .collect();
