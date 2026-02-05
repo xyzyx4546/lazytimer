@@ -1,4 +1,4 @@
-use crate::{app::App, sessions::Penalty};
+use crate::{app::App, sessions::Penalty, time_display::TimeDisplay};
 use jiff::tz::TimeZone;
 use ratatui::{prelude::*, widgets::*};
 use tui_widgets::big_text::*;
@@ -25,23 +25,17 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
         app.ao(k)
             .get(app.selected_solve_idx)
             .and_then(|r| *r)
-            .map_or("-".to_string(), |d| format!("{:.3}", d.as_secs_f64()))
+            .map_or("-".to_string(), |d| d.format(3))
     };
 
-    let (time_str, time_color) = match solve.penalty {
-        Penalty::None => (
-            format!("{:.3}", solve.effective_time().unwrap().as_secs_f64()),
-            Color::Green,
-        ),
-        Penalty::PlusTwo => (
-            format!("{:.3}+", solve.effective_time().unwrap().as_secs_f64()),
-            Color::Yellow,
-        ),
-        Penalty::Dnf => ("DNF".to_string(), Color::Red),
+    let time_color = match solve.penalty {
+        Penalty::None => Color::Green,
+        Penalty::PlusTwo => Color::Yellow,
+        Penalty::Dnf => Color::Red,
     };
 
     let big_text = BigText::builder()
-        .lines(vec![time_str.into()])
+        .lines(vec![solve.format(3).into()])
         .centered()
         .style(Style::default().fg(time_color).bold())
         .pixel_size(PixelSize::Sextant)
@@ -51,7 +45,7 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
         .timestamp
         .to_zoned(TimeZone::system())
         .strftime("%Y-%m-%d %H:%M");
-    
+
     let text = vec![
         line("AO5", ao_str(5), Color::Blue),
         line("AO12", ao_str(12), Color::Cyan),

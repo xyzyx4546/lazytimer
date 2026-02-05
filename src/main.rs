@@ -8,6 +8,7 @@ mod app;
 mod events;
 mod scramble;
 mod sessions;
+mod time_display;
 mod ui;
 
 fn setup_keyboard_protocol() -> Result<()> {

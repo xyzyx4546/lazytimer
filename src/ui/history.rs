@@ -1,4 +1,4 @@
-use crate::{app::App, sessions::Penalty};
+use crate::{app::App, sessions::Penalty, time_display::TimeDisplay};
 use ratatui::{prelude::*, widgets::*};
 
 pub fn render(app: &App, frame: &mut Frame, area: Rect) {
@@ -25,23 +25,14 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
         .enumerate()
         .rev()
         .map(|(index, solve)| {
-            let time = match solve.penalty {
-                Penalty::None => format!("{:.3}", solve.time.as_millis() as f64 / 1000.0),
-                Penalty::PlusTwo => {
-                    format!("{:.3}+", solve.time.as_millis() as f64 / 1000.0 + 2.0)
-                }
-                Penalty::Dnf => "DNF".to_string(),
-            };
-            let ao5 =
-                app.ao(5)[index].map_or("-".to_string(), |d| format!("{:.3}", d.as_secs_f64()));
-            let ao12 =
-                app.ao(12)[index].map_or("-".to_string(), |d| format!("{:.3}", d.as_secs_f64()));
+            let ao5 = app.ao(5)[index].map_or("-".to_string(), |d| d.format(3));
+            let ao12 = app.ao(12)[index].map_or("-".to_string(), |d| d.format(3));
 
             ListItem::new(Line::from(vec![
                 Span::raw(format!("{:<6}", index + 1)),
                 Span::raw("│"),
                 Span::styled(
-                    format!("{:^13}", time),
+                    format!("{:^13}", solve.format(3)),
                     Style::default().fg(match solve.penalty {
                         Penalty::None => Color::Green,
                         Penalty::PlusTwo => Color::Yellow,
