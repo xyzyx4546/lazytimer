@@ -4,7 +4,8 @@ use crate::{
 };
 use anyhow::{Context, Result};
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyEventKind, poll, read};
-use std::time::{Duration, Instant, SystemTime};
+use jiff::Timestamp;
+use std::time::{Duration, Instant};
 
 pub fn handle_space(app: &mut App, kind: KeyEventKind) -> Result<()> {
     match kind {
@@ -115,7 +116,7 @@ pub fn handle(app: &mut App) -> Result<()> {
                     time,
                     penalty: Penalty::None,
                     scramble: app.current_scramble.clone(),
-                    timestamp: SystemTime::now(),
+                    timestamp: Timestamp::now(),
                 });
                 app.next_scramble();
             } else if matches!(code, KeyCode::Char(' ')) && matches!(app.popup, None) {

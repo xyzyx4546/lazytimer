@@ -1,35 +1,16 @@
 use crate::{app::App, sessions::Penalty};
+use jiff::tz::TimeZone;
 use ratatui::{prelude::*, widgets::*};
-use std::time::{SystemTime, UNIX_EPOCH};
 use tui_widgets::big_text::*;
 
-fn line(key: &str, value: String, color: Color) -> Line<'_> {
+fn line(key: &str, value: impl std::fmt::Display, color: Color) -> Line<'_> {
     Line::from(vec![
         Span::styled(
             format!("{:>10}  ", key),
             Style::default().fg(Color::Magenta),
         ),
-        Span::styled(value, Style::default().fg(color)),
+        Span::styled(value.to_string(), Style::default().fg(color)),
     ])
-}
-
-fn format_date(timestamp: SystemTime) -> String {
-    timestamp
-        .duration_since(UNIX_EPOCH)
-        .map(|d| {
-            let secs = d.as_secs();
-            let days = secs / 86400;
-            let year = 1970 + days / 365;
-            let month = ((days % 365) / 30) + 1;
-            let day = ((days % 365) % 30) + 1;
-            let time = secs % 86400;
-            let (h, m, s) = (time / 3600, (time % 3600) / 60, time % 60);
-            format!(
-                "{:04}-{:02}-{:02} {:02}:{:02}:{:02}",
-                year, month, day, h, m, s
-            )
-        })
-        .unwrap_or_else(|_| "Invalid".to_string())
 }
 
 pub fn render(app: &App, frame: &mut Frame, area: Rect) {
@@ -66,11 +47,16 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
         .pixel_size(PixelSize::Sextant)
         .build();
 
+    let timestamp_str = solve
+        .timestamp
+        .to_zoned(TimeZone::system())
+        .strftime("%Y-%m-%d %H:%M");
+    
     let text = vec![
         line("AO5", ao_str(5), Color::Blue),
         line("AO12", ao_str(12), Color::Cyan),
-        line("Scramble", solve.scramble.to_string(), Color::White),
-        line("Date", format_date(solve.timestamp), Color::DarkGray),
+        line("Scramble", &solve.scramble, Color::White),
+        line("Date", timestamp_str, Color::DarkGray),
     ];
 
     let layout = Layout::vertical([

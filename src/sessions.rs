@@ -1,12 +1,13 @@
 use crate::app::App;
 use anyhow::{Context, Result};
 use dirs::config_dir;
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
     fmt::{self, Display, Formatter},
     fs::{create_dir_all, read_to_string, write},
-    time::{Duration, SystemTime},
+    time::Duration,
 };
 use strum::EnumIter;
 
@@ -46,7 +47,8 @@ pub struct Solve {
     pub time: Duration,
     pub penalty: Penalty,
     pub scramble: String,
-    pub timestamp: SystemTime,
+    #[serde(with = "jiff::fmt::serde::timestamp::second::required")]
+    pub timestamp: Timestamp,
 }
 
 impl Solve {
