@@ -3,7 +3,7 @@ use crate::{
     time_display::TimeDisplay,
 };
 use ratatui::{prelude::*, widgets::*};
-use std::cmp::max;
+use std::time::Duration;
 use tui_widgets::big_text::*;
 
 pub fn render(app: &App, frame: &mut Frame, area: Rect) {
@@ -16,18 +16,24 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
         TimerState::Idle { time } => (time.format(2), Style::default()),
         TimerState::PreInspection { time } => (time.format(2), Style::default().fg(Color::Yellow)),
         TimerState::Inspection { start } => {
-            let remaining = max(INSPECTION_TIME - start.elapsed().as_secs(), 1);
-            let style = if remaining <= 5 {
-                Style::default().fg(Color::Red)
+            let remaining = Duration::from_secs(INSPECTION_TIME)
+                .saturating_sub(start.elapsed())
+                .max(Duration::from_secs(1));
+
+            let color = if remaining.as_secs() <= 5 {
+                Color::Red
             } else {
-                Style::default().fg(Color::Green)
+                Color::Green
             };
-            (remaining.to_string(), style)
+            (remaining.format(0), Style::default().fg(color))
         }
-        TimerState::PreRunning { start } => (
-            start.elapsed().format(0),
-            Style::default().fg(Color::Yellow),
-        ),
+        TimerState::PreRunning { start } => {
+            let remaining = Duration::from_secs(INSPECTION_TIME)
+                .saturating_sub(start.elapsed())
+                .max(Duration::from_secs(1));
+
+            (remaining.format(0), Style::default().fg(Color::Yellow))
+        }
         TimerState::Running { start } => {
             (start.elapsed().format(1), Style::default().fg(Color::Green))
         }
