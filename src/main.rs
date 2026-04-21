@@ -5,6 +5,7 @@ use crossterm::{
 };
 
 mod app;
+mod config;
 mod events;
 mod scramble;
 mod sessions;

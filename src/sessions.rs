@@ -1,6 +1,5 @@
 use crate::app::App;
 use anyhow::{Context, Result};
-use dirs::config_dir;
 use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -115,27 +114,24 @@ impl App {
     }
 
     pub fn load_sessions(&mut self) -> Result<()> {
-        let config_path = config_dir()
-            .context("Config directory not found")?
-            .join("lazytimer/sessions.json");
+        let path = &self.config.general.data_dir.join("sessions.json");
 
-        if config_path.exists() {
-            let json = read_to_string(&config_path).context("Failed to read sessions file")?;
+        if path.exists() {
+            let json = read_to_string(path).context("Failed to read sessions file")?;
             let sessions: HashMap<PuzzleType, Vec<Solve>> =
                 serde_json::from_str(&json).context("Failed to parse sessions JSON")?;
             self.sessions = sessions;
         }
+        self.save_sessions()?;
         Ok(())
     }
 
     pub fn save_sessions(&self) -> Result<()> {
-        let path = config_dir()
-            .context("Config directory not found")?
-            .join("lazytimer/sessions.json");
+        let path = &self.config.general.data_dir.join("sessions.json");
         create_dir_all(path.parent().context("Path has no parent")?)?;
         let json =
             serde_json::to_string_pretty(&self.sessions).context("Failed to serialize sessions")?;
-        write(&path, json).context("Failed to write sessions file")?;
+        write(path, json).context("Failed to write sessions file")?;
         Ok(())
     }
 }

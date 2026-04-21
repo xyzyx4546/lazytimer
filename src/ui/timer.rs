@@ -1,5 +1,5 @@
 use crate::{
-    app::{App, INSPECTION_TIME, TimerState},
+    app::{App, TimerState},
     time_display::TimeDisplay,
 };
 use ratatui::{prelude::*, widgets::*};
@@ -16,7 +16,7 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
         TimerState::Idle { time } => (time.format(2), Style::default()),
         TimerState::PreInspection { time } => (time.format(2), Style::default().fg(Color::Yellow)),
         TimerState::Inspection { start } => {
-            let remaining = Duration::from_secs(INSPECTION_TIME)
+            let remaining = Duration::from_secs(app.config.timer.inspection_time)
                 .saturating_sub(start.elapsed())
                 .max(Duration::from_secs(1));
 
@@ -28,15 +28,20 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
             (remaining.format(0), Style::default().fg(color))
         }
         TimerState::PreRunning { start } => {
-            let remaining = Duration::from_secs(INSPECTION_TIME)
+            let remaining = Duration::from_secs(app.config.timer.inspection_time)
                 .saturating_sub(start.elapsed())
                 .max(Duration::from_secs(1));
 
             (remaining.format(0), Style::default().fg(Color::Yellow))
         }
-        TimerState::Running { start } => {
-            (start.elapsed().format(1), Style::default().fg(Color::Green))
-        }
+        TimerState::Running { start } => (
+            if app.config.timer.hide_timer_while_solving {
+                "SOLVE".to_string()
+            } else {
+                start.elapsed().format(1)
+            },
+            Style::default().fg(Color::Green),
+        ),
     };
 
     let big_text = BigText::builder()

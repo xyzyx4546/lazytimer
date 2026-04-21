@@ -41,3 +41,22 @@ cargo install lazytimer
 | +     | Toggle +2 penalty       |
 | -     | Toggle DNF penalty      |
 | d     | Delete selected solve   |
+
+## Configuration
+
+The configuration file is located at `$XDG_CONFIG_HOME/lazytimer/config.toml` or `$HOME/.config/lazytimer/config.toml`.
+
+You can customize the following options:
+
+```toml
+[general]
+# Directory where solve data is stored
+data_dir = "$XDG_DATA_HOME/lazytimer"
+# Default puzzle type to show on startup (e.g., "ThreeByThree", "TwoByTwo", etc.)
+default_puzzle = "ThreeByThree"
+
+[timer]
+# Inspection time in seconds (set to 0 to disable inspection)
+inspection_time = 15
+# Hide timer while solving
+hide_timer_while_solving = true

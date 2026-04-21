@@ -1,5 +1,5 @@
 use crate::{
-    app::{App, INSPECTION_TIME, PopupType, TimerState},
+    app::{App, PopupType, TimerState},
     sessions::{Penalty, Solve},
 };
 use anyhow::{Context, Result};
@@ -21,9 +21,17 @@ pub fn handle_space(app: &mut App, kind: KeyEventKind) -> Result<()> {
         }
         KeyEventKind::Release => {
             app.timer_state = match app.timer_state {
-                TimerState::PreInspection { .. } => TimerState::Inspection {
-                    start: Instant::now(),
-                },
+                TimerState::PreInspection { .. } => {
+                    if app.config.timer.inspection_time > 0 {
+                        TimerState::Inspection {
+                            start: Instant::now(),
+                        }
+                    } else {
+                        TimerState::Running {
+                            start: Instant::now(),
+                        }
+                    }
+                }
                 TimerState::PreRunning { .. } => TimerState::Running {
                     start: Instant::now(),
                 },
@@ -100,7 +108,7 @@ pub fn handle_key(app: &mut App, code: KeyCode) -> Result<()> {
 
 pub fn handle(app: &mut App) -> Result<()> {
     if let TimerState::Inspection { start } = app.timer_state {
-        if start.elapsed().as_secs() >= INSPECTION_TIME {
+        if start.elapsed().as_secs() >= app.config.timer.inspection_time {
             app.timer_state = TimerState::Running {
                 start: Instant::now(),
             };

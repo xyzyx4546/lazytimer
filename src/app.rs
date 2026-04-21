@@ -1,12 +1,13 @@
-use crate::sessions::{PuzzleType, Solve};
+use crate::{
+    config::{Config, load_config},
+    sessions::{PuzzleType, Solve},
+};
 use anyhow::{Context, Result};
 use std::{
     collections::HashMap,
     time::{Duration, Instant},
 };
 use strum::IntoEnumIterator;
-
-pub const INSPECTION_TIME: u64 = 15;
 
 #[derive(Copy, Clone)]
 pub enum TimerState {
@@ -25,6 +26,8 @@ pub enum PopupType {
 pub struct App {
     pub exiting: bool,
 
+    pub config: Config,
+
     pub timer_state: TimerState,
     pub current_scramble: String,
 
@@ -42,14 +45,18 @@ impl App {
             sessions.insert(puzzle_type, Vec::new());
         }
 
+        let config = load_config()?;
+        let default_puzzle = config.general.default_puzzle;
+
         let mut app = App {
             exiting: false,
+            config,
             timer_state: TimerState::Idle {
                 time: Duration::from_secs(0),
             },
             current_scramble: String::from(""),
             sessions,
-            selected_puzzle_type: PuzzleType::ThreeByThree,
+            selected_puzzle_type: default_puzzle,
             selected_solve_idx: 0,
             popup: None,
         };
