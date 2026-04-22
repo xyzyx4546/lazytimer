@@ -59,4 +59,4 @@ default_puzzle = "ThreeByThree"
 # Inspection time in seconds (set to 0 to disable inspection)
 inspection_time = 15
 # Hide timer while solving
-hide_timer_while_solving = true
+hide_timer_while_solving = false

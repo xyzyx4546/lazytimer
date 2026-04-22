@@ -32,7 +32,7 @@ impl Default for TimerConfig {
     fn default() -> Self {
         Self {
             inspection_time: 15,
-            hide_timer_while_solving: true,
+            hide_timer_while_solving: false,
         }
     }
 }
