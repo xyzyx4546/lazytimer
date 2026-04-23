@@ -39,11 +39,34 @@ fn run() -> Result<()> {
     Ok(())
 }
 
+fn handle_args() -> bool {
+    let args: Vec<String> = std::env::args().collect();
+    if args.iter().any(|a| a == "-v" || a == "--version") {
+        println!("lazytimer {}", env!("CARGO_PKG_VERSION"));
+        return true;
+    }
+    if args.iter().any(|a| a == "-h" || a == "--help") {
+        println!(
+            "Usage: lazytimer [OPTIONS]\n\
+            \n\
+            Options:\n\
+              -h, --help     Print help information\n\
+              -v, --version  Print version information"
+        );
+        return true;
+    }
+    false
+}
+
 fn main() {
-    if let Err(e) = run() {
-        ratatui::restore();
+    if handle_args() {
+        return;
+    }
+
+    let result = run();
+    ratatui::restore();
+    if let Err(e) = result {
         eprintln!("Error: {}", e);
         std::process::exit(1);
     }
-    ratatui::restore();
 }
