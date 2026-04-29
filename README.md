@@ -16,7 +16,49 @@ A terminal-based speedcubing timer written in Rust.
 
 Make sure your terminal supports [progressive keyboard enhancements](https://sw.kovidgoyal.net/kitty/keyboard-protocol/) (also known as the Kitty keyboard protocol).
 
-You can then install lazytimer using `cargo`
+### Nix
+
+If you use Nix, you can run `lazytimer` directly without installing it:
+
+```bash
+nix run github:xyzyx4546/lazytimer
+```
+
+#### Home Manager
+
+To install and configure `lazytimer` using Home Manager, first add the flake to your inputs:
+
+```nix
+{
+  inputs = {
+    lazytimer = {
+      url = "github:xyzyx4546/lazytimer";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+}
+```
+
+Then add the module to your Home Manager configuration and enable the program:
+
+```nix
+{inputs, ...}: {
+  imports = [
+    inputs.lazytimer.homeModules.lazytimer
+  ];
+
+  programs.lazytimer = {
+    enable = true;
+    settings = {
+      # Your config here
+    };
+  };
+}
+```
+
+### Cargo
+
+You can also install `lazytimer` using `cargo`:
 
 ```bash
 cargo install lazytimer
@@ -60,3 +102,4 @@ default_puzzle = "ThreeByThree"
 inspection_time = 15
 # Hide timer while solving
 hide_timer_while_solving = false
+```
