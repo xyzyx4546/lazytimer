@@ -135,3 +135,69 @@ impl App {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use jiff::Timestamp;
+    use std::time::Duration;
+
+    fn dummy_solve(millis: u64, penalty: Penalty) -> Solve {
+        Solve {
+            time: Duration::from_millis(millis),
+            penalty,
+            scramble: String::new(),
+            timestamp: Timestamp::now(),
+        }
+    }
+
+    #[test]
+    fn test_effective_time() {
+        let clean = dummy_solve(10000, Penalty::None);
+        assert_eq!(clean.effective_time(), Some(Duration::from_millis(10000)));
+
+        let plus_two = dummy_solve(10000, Penalty::PlusTwo);
+        assert_eq!(
+            plus_two.effective_time(),
+            Some(Duration::from_millis(12000))
+        );
+
+        let dnf = dummy_solve(10000, Penalty::Dnf);
+        assert_eq!(dnf.effective_time(), None);
+    }
+
+    #[test]
+    fn test_ao5_calculation() {
+        let mut app = App::default();
+        for time in [16, 12, 5, 16, 14, 20] {
+            app.add_solve(dummy_solve(time * 1000, Penalty::None));
+        }
+
+        assert_eq!(
+            app.ao(5),
+            vec![
+                None,
+                None,
+                None,
+                None,
+                Some(Duration::from_secs(14)),
+                Some(Duration::from_secs(14)),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_ao5_with_dnf() {
+        let mut app = App::default();
+        for time in [10, 12, 14, 16] {
+            app.add_solve(dummy_solve(time * 1000, Penalty::None));
+        }
+        app.add_solve(dummy_solve(18000, Penalty::Dnf));
+        app.add_solve(dummy_solve(18000, Penalty::Dnf));
+
+        assert_eq!(
+            app.ao(5),
+            vec![None, None, None, None, Some(Duration::from_secs(14)), None]
+        );
+    }
+}

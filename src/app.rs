@@ -121,3 +121,26 @@ impl App {
         }
     }
 }
+
+#[cfg(test)]
+impl Default for App {
+    fn default() -> Self {
+        let mut sessions = HashMap::new();
+        for puzzle_type in PuzzleType::iter() {
+            sessions.insert(puzzle_type, Vec::new());
+        }
+
+        Self {
+            exiting: false,
+            config: Config::default(),
+            timer_state: TimerState::Idle {
+                time: Duration::from_secs(0),
+            },
+            current_scramble: String::new(),
+            sessions,
+            selected_puzzle_type: PuzzleType::ThreeByThree,
+            selected_solve_idx: 0,
+            popup: None,
+        }
+    }
+}

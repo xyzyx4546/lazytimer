@@ -12,7 +12,7 @@ impl TimeDisplay for Duration {
         let seconds = secs % 60;
 
         let time_str = if mins > 0 {
-            format!("{}:{}", mins, seconds)
+            format!("{}:{:02}", mins, seconds)
         } else {
             seconds.to_string()
         };
@@ -37,5 +37,26 @@ impl TimeDisplay for Solve {
             },
             None => "DNF".to_string(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::Duration;
+
+    #[test]
+    fn test_duration_formatting() {
+        let d1 = Duration::from_millis(12345);
+        assert_eq!(d1.format(3), "12.345");
+        assert_eq!(d1.format(2), "12.34");
+
+        let d2 = Duration::from_millis(65430);
+        assert_eq!(d2.format(2), "1:05.43");
+        assert_eq!(d2.format(0), "1:05");
+
+        let d3 = Duration::from_millis(12000);
+        assert_eq!(d3.format(3), "12.000");
+        assert_eq!(d3.format(0), "12");
     }
 }
