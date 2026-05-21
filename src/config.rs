@@ -45,7 +45,7 @@ impl Default for GeneralConfig {
         Self {
             data_dir: dirs::data_dir()
                 .map(|d| d.join("lazytimer"))
-                .unwrap_or(PathBuf::default()),
+                .unwrap_or_default(),
             default_puzzle: PuzzleType::ThreeByThree,
         }
     }

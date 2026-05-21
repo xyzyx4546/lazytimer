@@ -52,6 +52,8 @@ pub fn handle_key(app: &mut App, key: KeyCombination) -> Result<()> {
             app.popup = None;
             return Ok(());
         }
+
+        #[allow(clippy::single_match)]
         match popup_type {
             PopupType::ConfirmDelete => {
                 if key == binds.confirm {
@@ -107,12 +109,12 @@ pub fn handle_key(app: &mut App, key: KeyCombination) -> Result<()> {
 }
 
 pub fn handle(app: &mut App) -> Result<()> {
-    if let TimerState::Inspection { start } = app.timer_state {
-        if start.elapsed().as_secs() >= app.config.timer.inspection_time {
-            app.timer_state = TimerState::Running {
-                start: Instant::now(),
-            };
-        }
+    if let TimerState::Inspection { start } = app.timer_state
+        && start.elapsed().as_secs() >= app.config.timer.inspection_time
+    {
+        app.timer_state = TimerState::Running {
+            start: Instant::now(),
+        };
     }
 
     if matches!(app.timer_state, TimerState::Idle { .. }) || poll(Duration::from_millis(100))? {
