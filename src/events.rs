@@ -55,13 +55,11 @@ pub fn handle_key(app: &mut App, key: KeyCombination) -> Result<()> {
 
         #[allow(clippy::single_match)]
         match popup_type {
-            PopupType::ConfirmDelete => {
-                if key == binds.confirm {
-                    let idx = app.selected_solve_idx;
-                    app.selected_solve_idx = app.selected_solve_idx.saturating_sub(1);
-                    app.selected_session_mut().remove(idx);
-                    app.popup = None;
-                }
+            PopupType::ConfirmDelete if key == binds.confirm => {
+                let idx = app.selected_solve_idx;
+                app.selected_solve_idx = app.selected_solve_idx.saturating_sub(1);
+                app.selected_session_mut().remove(idx);
+                app.popup = None;
             }
             _ => {}
         }
@@ -82,15 +80,11 @@ pub fn handle_key(app: &mut App, key: KeyCombination) -> Result<()> {
                 app.popup = Some(PopupType::Keybinds);
             }
 
-            c if c == binds.delete_solve => {
-                if app.selected_solve().is_some() {
-                    app.popup = Some(PopupType::ConfirmDelete);
-                }
+            c if c == binds.delete_solve && app.selected_solve().is_some() => {
+                app.popup = Some(PopupType::ConfirmDelete);
             }
-            c if c == binds.solve_details => {
-                if app.selected_solve().is_some() {
-                    app.popup = Some(PopupType::SolveDetails);
-                }
+            c if c == binds.solve_details && app.selected_solve().is_some() => {
+                app.popup = Some(PopupType::SolveDetails);
             }
             c if c == binds.toggle_plus_two => {
                 if let Some(solve) = app.selected_solve_mut() {

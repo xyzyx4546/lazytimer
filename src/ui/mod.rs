@@ -31,11 +31,9 @@ pub fn draw(app: &App, terminal: &mut DefaultTerminal) -> Result<()> {
 
         let scramble_height = {
             let width = main_layout[2].width.saturating_sub(4);
-            if width == 0 {
-                3
-            } else {
-                (app.current_scramble.len() as u16 / width).saturating_add(3)
-            }
+            (app.current_scramble.len() as u16)
+                .checked_div(width)
+                .map_or(3, |q| q.saturating_sub(3))
         };
 
         let right_layout =
