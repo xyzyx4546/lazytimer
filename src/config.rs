@@ -1,5 +1,6 @@
 use crate::sessions::PuzzleType;
 use anyhow::{Context, Result};
+use crokey::{KeyCombination, key};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -15,6 +16,28 @@ pub struct TimerConfig {
 pub struct GeneralConfig {
     pub data_dir: PathBuf,
     pub default_puzzle: PuzzleType,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(default)]
+pub struct KeybindsConfig {
+    pub previous_puzzle: KeyCombination,
+    pub next_puzzle: KeyCombination,
+    pub previous_solve: KeyCombination,
+    pub next_solve: KeyCombination,
+    pub first_solve: KeyCombination,
+    pub last_solve: KeyCombination,
+
+    pub quit: KeyCombination,
+    pub show_keybinds: KeyCombination,
+    pub cancel: KeyCombination,
+    pub confirm: KeyCombination,
+    pub start_timer: KeyCombination,
+
+    pub delete_solve: KeyCombination,
+    pub solve_details: KeyCombination,
+    pub toggle_plus_two: KeyCombination,
+    pub toggle_dnf: KeyCombination,
 }
 
 impl Default for GeneralConfig {
@@ -37,11 +60,36 @@ impl Default for TimerConfig {
     }
 }
 
+impl Default for KeybindsConfig {
+    fn default() -> Self {
+        Self {
+            previous_puzzle: key!(h),
+            next_puzzle: key!(l),
+            previous_solve: key!(j),
+            next_solve: key!(k),
+            first_solve: key!(g),
+            last_solve: key!(G),
+
+            quit: key!(q),
+            show_keybinds: key!('?'),
+            cancel: key!(esc),
+            confirm: key!(enter),
+            start_timer: key!(space),
+
+            delete_solve: key!(d),
+            solve_details: key!(i),
+            toggle_plus_two: key!('+'),
+            toggle_dnf: key!('-'),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Default)]
 #[serde(default)]
 pub struct Config {
     pub general: GeneralConfig,
     pub timer: TimerConfig,
+    pub keybinds: KeybindsConfig,
 }
 
 pub fn load_config() -> Result<Config> {

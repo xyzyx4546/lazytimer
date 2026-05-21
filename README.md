@@ -64,26 +64,6 @@ You can also install `lazytimer` using `cargo`:
 cargo install lazytimer
 ```
 
-## Keybinds
-
-| Key   | Action                  |
-| ----- | ----------------------- |
-| ?     | Show keybinds           |
-| q     | Quit                    |
-| Esc   | Close popup             |
-| Enter | Confirm                 |
-| Space | Start/stop timer        |
-| h / ← | Previous puzzle type    |
-| j / ↓ | Previous solve          |
-| k / ↑ | Next solve              |
-| l / → | Next puzzle type        |
-| g     | Go to first solve       |
-| G     | Go to last solve        |
-| i     | Show solve details      |
-| +     | Toggle +2 penalty       |
-| -     | Toggle DNF penalty      |
-| d     | Delete selected solve   |
-
 ## Configuration
 
 The configuration file is located at `$XDG_CONFIG_HOME/lazytimer/config.toml` or `$HOME/.config/lazytimer/config.toml`.
@@ -102,4 +82,24 @@ default_puzzle = "ThreeByThree"
 inspection_time = 15
 # Hide timer while solving
 hide_timer_while_solving = false
+
+[keybinds]
+# Navigation
+previous_puzzle = "h"
+next_puzzle = "l"
+previous_solve = "j"
+next_solve = "k"
+first_solve = "g"
+last_solve = "G"
+# Global actions
+quit = "q"
+show_keybinds = "?"
+cancel = "Esc"
+confirm = "Enter"
+start_timer = "Space"
+# Solve actions
+delete_solve = "d"
+solve_details = "i"
+toggle_plus_two = "+"
+toggle_dnf = "-"
 ```

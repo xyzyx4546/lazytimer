@@ -3,11 +3,12 @@ use crate::{
     sessions::{Penalty, Solve},
 };
 use anyhow::{Context, Result};
-use crossterm::event::{Event, KeyCode, KeyEvent, KeyEventKind, poll, read};
+use crokey::KeyCombination;
+use crossterm::event::{Event, KeyEventKind, poll, read};
 use jiff::Timestamp;
 use std::time::{Duration, Instant};
 
-pub fn handle_space(app: &mut App, kind: KeyEventKind) -> Result<()> {
+pub fn handle_timer_key(app: &mut App, kind: KeyEventKind) -> Result<()> {
     match kind {
         KeyEventKind::Press => {
             app.timer_state = match app.timer_state {
@@ -43,19 +44,17 @@ pub fn handle_space(app: &mut App, kind: KeyEventKind) -> Result<()> {
     Ok(())
 }
 
-pub fn handle_key(app: &mut App, code: KeyCode) -> Result<()> {
+pub fn handle_key(app: &mut App, key: KeyCombination) -> Result<()> {
+    let binds = &app.config.keybinds;
+
     if let Some(popup_type) = &mut app.popup {
-        if matches!(code, KeyCode::Esc) {
-            if app.sessions.is_empty() {
-                app.exiting = true;
-            } else {
-                app.popup = None;
-            }
+        if key == binds.cancel {
+            app.popup = None;
             return Ok(());
         }
         match popup_type {
             PopupType::ConfirmDelete => {
-                if matches!(code, KeyCode::Enter) {
+                if key == binds.confirm {
                     let idx = app.selected_solve_idx;
                     app.selected_solve_idx = app.selected_solve_idx.saturating_sub(1);
                     app.selected_session_mut().remove(idx);
@@ -65,37 +64,38 @@ pub fn handle_key(app: &mut App, code: KeyCode) -> Result<()> {
             _ => {}
         }
     } else {
-        match code {
-            KeyCode::Char('q') => {
+        match key {
+            c if c == binds.previous_puzzle => app.switch_session(-1),
+            c if c == binds.previous_solve => app.switch_solve(-1),
+            c if c == binds.next_puzzle => app.switch_session(1),
+            c if c == binds.next_solve => app.switch_solve(1),
+            c if c == binds.first_solve => app.reset_selected_solve(),
+            c if c == binds.last_solve => app.selected_solve_idx = 0,
+
+            c if c == binds.quit => {
                 app.save_sessions().context("Failed to save sessions")?;
                 app.exiting = true;
             }
-            KeyCode::Char('?') => app.popup = Some(PopupType::Keybinds),
-            KeyCode::Char('d') => {
+            c if c == binds.show_keybinds => {
+                app.popup = Some(PopupType::Keybinds);
+            }
+
+            c if c == binds.delete_solve => {
                 if app.selected_solve().is_some() {
-                    app.popup = Some(PopupType::ConfirmDelete)
+                    app.popup = Some(PopupType::ConfirmDelete);
                 }
             }
-            KeyCode::Char('i') => {
+            c if c == binds.solve_details => {
                 if app.selected_solve().is_some() {
                     app.popup = Some(PopupType::SolveDetails);
                 }
             }
-            KeyCode::Esc => app.popup = None,
-
-            KeyCode::Char('h') | KeyCode::Left => app.switch_session(-1),
-            KeyCode::Char('j') | KeyCode::Down => app.switch_solve(-1),
-            KeyCode::Char('k') | KeyCode::Up => app.switch_solve(1),
-            KeyCode::Char('l') | KeyCode::Right => app.switch_session(1),
-            KeyCode::Char('g') => app.reset_selected_solve(),
-            KeyCode::Char('G') => app.selected_solve_idx = 0,
-
-            KeyCode::Char('+') => {
+            c if c == binds.toggle_plus_two => {
                 if let Some(solve) = app.selected_solve_mut() {
                     solve.toggle_penalty(Penalty::PlusTwo);
                 }
             }
-            KeyCode::Char('-') => {
+            c if c == binds.toggle_dnf => {
                 if let Some(solve) = app.selected_solve_mut() {
                     solve.toggle_penalty(Penalty::Dnf);
                 }
@@ -116,24 +116,29 @@ pub fn handle(app: &mut App) -> Result<()> {
     }
 
     if matches!(app.timer_state, TimerState::Idle { .. }) || poll(Duration::from_millis(100))? {
-        if let Event::Key(KeyEvent { code, kind, .. }) = read()? {
-            if let TimerState::Running { start } = app.timer_state {
-                let time = start.elapsed();
-                app.timer_state = TimerState::Idle { time };
-                app.add_solve(Solve {
-                    time,
-                    penalty: Penalty::None,
-                    scramble: app.current_scramble.clone(),
-                    timestamp: Timestamp::now(),
-                });
-                app.next_scramble();
-            } else if matches!(code, KeyCode::Char(' ')) && matches!(app.popup, None) {
-                handle_space(app, kind)?
-            } else if !matches!(kind, KeyEventKind::Release)
-                && matches!(app.timer_state, TimerState::Idle { .. })
-            {
-                handle_key(app, code)?
-            }
+        let Event::Key(key_event) = read()? else {
+            return Ok(());
+        };
+        let key = KeyCombination::from(key_event);
+        let kind = key_event.kind;
+
+        if let TimerState::Running { start } = app.timer_state {
+            let time = start.elapsed();
+            app.timer_state = TimerState::Idle { time };
+            app.add_solve(Solve {
+                time,
+                penalty: Penalty::None,
+                scramble: app.current_scramble.clone(),
+                timestamp: Timestamp::now(),
+            });
+            app.next_scramble();
+            return Ok(());
+        }
+
+        if key == app.config.keybinds.start_timer && app.popup.is_none() {
+            handle_timer_key(app, kind)?;
+        } else if kind != KeyEventKind::Release {
+            handle_key(app, key)?;
         }
     }
     Ok(())
