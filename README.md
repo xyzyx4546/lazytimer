@@ -90,7 +90,7 @@ next_puzzle = "l"
 previous_solve = "j"
 next_solve = "k"
 first_solve = "g"
-last_solve = "G"
+last_solve = "Shift-g"
 # Global actions
 quit = "q"
 show_keybinds = "?"

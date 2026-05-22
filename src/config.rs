@@ -68,7 +68,7 @@ impl Default for KeybindsConfig {
             previous_solve: key!(j),
             next_solve: key!(k),
             first_solve: key!(g),
-            last_solve: key!(G),
+            last_solve: key!(shift-g),
 
             quit: key!(q),
             show_keybinds: key!('?'),
