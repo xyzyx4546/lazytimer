@@ -1,6 +1,6 @@
 {
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-  outputs = {nixpkgs, ...}: let
+  outputs = {self, nixpkgs}: let
     system = "x86_64-linux";
     pkgs = import nixpkgs {inherit system;};
     lazytimerPkg = pkgs.rustPlatform.buildRustPackage {
@@ -30,5 +30,7 @@
           (pkgs.formats.toml {}).generate "lazytimer-config" config.programs.lazytimer.settings;
       };
     };
+
+    checks.x86_64-linux.default = self.packages.x86_64-linux.default;
   };
 }
