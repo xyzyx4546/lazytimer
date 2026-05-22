@@ -83,7 +83,7 @@ impl App {
             .max()
     }
 
-    pub fn ao(&self, k: usize) -> Vec<Option<Duration>> {
+    fn ao(&self, k: usize) -> Vec<Option<Duration>> {
         if k < 3 {
             return vec![None; self.selected_session().len()];
         }
@@ -111,6 +111,11 @@ impl App {
                 Some(total / to_average.len() as u32)
             })
             .collect()
+    }
+
+    pub fn compute_averages(&mut self) {
+        self.ao5 = self.ao(5);
+        self.ao12 = self.ao(12);
     }
 
     pub fn load_sessions(&mut self) -> Result<()> {

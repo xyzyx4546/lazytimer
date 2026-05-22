@@ -34,36 +34,49 @@ pub struct App {
     pub sessions: HashMap<PuzzleType, Vec<Solve>>,
     pub selected_puzzle_type: PuzzleType,
     pub selected_solve_idx: usize,
+    pub ao5: Vec<Option<Duration>>,
+    pub ao12: Vec<Option<Duration>>,
 
     pub popup: Option<PopupType>,
 }
 
-impl App {
-    pub fn new() -> Result<Self> {
+impl Default for App {
+    fn default() -> Self {
         let mut sessions = HashMap::new();
         for puzzle_type in PuzzleType::iter() {
             sessions.insert(puzzle_type, Vec::new());
         }
 
-        let config = load_config()?;
-        let default_puzzle = config.general.default_puzzle;
-
-        let mut app = App {
+        Self {
             exiting: false,
-            config,
+            config: Config::default(),
             timer_state: TimerState::Idle {
                 time: Duration::from_secs(0),
             },
-            current_scramble: String::from(""),
+            current_scramble: String::new(),
             sessions,
-            selected_puzzle_type: default_puzzle,
+            selected_puzzle_type: PuzzleType::ThreeByThree,
             selected_solve_idx: 0,
+            ao5: vec![],
+            ao12: vec![],
             popup: None,
-        };
+        }
+    }
+}
+
+impl App {
+    pub fn new() -> Result<Self> {
+        let mut app = Self::default();
+
+        let config = load_config()?;
+
+        app.selected_puzzle_type = config.general.default_puzzle;
+        app.config = config;
 
         app.load_sessions().context("Failed to load sessions")?;
         app.reset_selected_solve();
         app.next_scramble();
+        app.compute_averages();
 
         Ok(app)
     }
@@ -89,14 +102,16 @@ impl App {
         self.selected_session_mut().get_mut(idx)
     }
 
-    pub fn add_solve(&mut self, solve: Solve) {
-        let session = self.selected_session_mut();
-        session.push(solve);
-        self.selected_solve_idx = session.len() - 1;
-    }
-
     pub fn reset_selected_solve(&mut self) {
         self.selected_solve_idx = self.selected_session().len().saturating_sub(1);
+    }
+
+    pub fn switch_solve(&mut self, offset: isize) {
+        let new_idx = self.selected_solve_idx as isize + offset;
+
+        if new_idx >= 0 && (new_idx as usize) < self.selected_session().len() {
+            self.selected_solve_idx = new_idx as usize;
+        }
     }
 
     pub fn switch_session(&mut self, offset: i32) {
@@ -111,36 +126,20 @@ impl App {
         self.selected_puzzle_type = puzzle_types[new_idx];
         self.reset_selected_solve();
         self.next_scramble();
+        self.compute_averages();
     }
 
-    pub fn switch_solve(&mut self, offset: isize) {
-        let new_idx = self.selected_solve_idx as isize + offset;
-
-        if new_idx >= 0 && (new_idx as usize) < self.selected_session().len() {
-            self.selected_solve_idx = new_idx as usize;
-        }
+    pub fn add_solve(&mut self, solve: Solve) {
+        let session = self.selected_session_mut();
+        session.push(solve);
+        self.selected_solve_idx = session.len() - 1;
+        self.compute_averages();
     }
-}
 
-#[cfg(test)]
-impl Default for App {
-    fn default() -> Self {
-        let mut sessions = HashMap::new();
-        for puzzle_type in PuzzleType::iter() {
-            sessions.insert(puzzle_type, Vec::new());
-        }
-
-        Self {
-            exiting: false,
-            config: Config::default(),
-            timer_state: TimerState::Idle {
-                time: Duration::from_secs(0),
-            },
-            current_scramble: String::new(),
-            sessions,
-            selected_puzzle_type: PuzzleType::ThreeByThree,
-            selected_solve_idx: 0,
-            popup: None,
-        }
+    pub fn delete_solve(&mut self) {
+        let idx = self.selected_solve_idx;
+        self.selected_session_mut().remove(idx);
+        self.selected_solve_idx = idx.saturating_sub(1);
+        self.compute_averages();
     }
 }

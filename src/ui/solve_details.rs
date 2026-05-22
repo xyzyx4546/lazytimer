@@ -1,6 +1,7 @@
 use crate::{app::App, sessions::Penalty, time_display::TimeDisplay};
 use jiff::tz::TimeZone;
 use ratatui::{prelude::*, widgets::*};
+use std::time::Duration;
 use tui_widgets::big_text::*;
 
 fn line(key: &str, value: impl std::fmt::Display, color: Color) -> Line<'_> {
@@ -21,9 +22,8 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
 
     let solve = app.selected_solve().unwrap();
 
-    let ao_str = |k: usize| -> String {
-        app.ao(k)
-            .get(app.selected_solve_idx)
+    let ao_str = |vec: &Vec<Option<Duration>>| -> String {
+        vec.get(app.selected_solve_idx)
             .and_then(|r| *r)
             .map_or("-".to_string(), |d| d.format(3))
     };
@@ -47,8 +47,8 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
         .strftime("%Y-%m-%d %H:%M");
 
     let text = vec![
-        line("AO5", ao_str(5), Color::Blue),
-        line("AO12", ao_str(12), Color::Cyan),
+        line("AO5", ao_str(&app.ao5), Color::Blue),
+        line("AO12", ao_str(&app.ao12), Color::Cyan),
         line("Scramble", &solve.scramble, Color::White),
         line("Date", timestamp_str, Color::DarkGray),
     ];

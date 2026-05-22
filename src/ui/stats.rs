@@ -17,8 +17,8 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
 
     let best = app.best_time();
     let worst = app.worst_time();
-    let best_ao5 = app.ao(5).iter().filter_map(|&x| x).min();
-    let best_ao12 = app.ao(12).iter().filter_map(|&x| x).min();
+    let best_ao5 = app.ao5.iter().filter_map(|&x| x).min();
+    let best_ao12 = app.ao12.iter().filter_map(|&x| x).min();
     let (count, sum): (usize, f64) = app
         .selected_session()
         .iter()

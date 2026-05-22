@@ -25,8 +25,8 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
         .enumerate()
         .rev()
         .map(|(index, solve)| {
-            let ao5 = app.ao(5)[index].map_or("-".to_string(), |d| d.format(3));
-            let ao12 = app.ao(12)[index].map_or("-".to_string(), |d| d.format(3));
+            let ao5 = app.ao5[index].map_or("-".to_string(), |d| d.format(3));
+            let ao12 = app.ao12[index].map_or("-".to_string(), |d| d.format(3));
 
             ListItem::new(Line::from(vec![
                 Span::raw(format!("{:<6}", index + 1)),

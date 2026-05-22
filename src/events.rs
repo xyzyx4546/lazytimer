@@ -56,9 +56,7 @@ pub fn handle_key(app: &mut App, key: KeyCombination) -> Result<()> {
         #[allow(clippy::single_match)]
         match popup_type {
             PopupType::ConfirmDelete if key == binds.confirm => {
-                let idx = app.selected_solve_idx;
-                app.selected_solve_idx = app.selected_solve_idx.saturating_sub(1);
-                app.selected_session_mut().remove(idx);
+                app.delete_solve();
                 app.popup = None;
             }
             _ => {}
@@ -89,11 +87,13 @@ pub fn handle_key(app: &mut App, key: KeyCombination) -> Result<()> {
             c if c == binds.toggle_plus_two => {
                 if let Some(solve) = app.selected_solve_mut() {
                     solve.toggle_penalty(Penalty::PlusTwo);
+                    app.compute_averages();
                 }
             }
             c if c == binds.toggle_dnf => {
                 if let Some(solve) = app.selected_solve_mut() {
                     solve.toggle_penalty(Penalty::Dnf);
+                    app.compute_averages();
                 }
             }
             _ => {}
