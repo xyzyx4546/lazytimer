@@ -22,8 +22,8 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
         });
 
     let (text, style) = match app.timer_state {
-        TimerState::Idle { time } => (time.format(2), Style::default()),
-        TimerState::PreInspection { time } => (time.format(2), Style::default().fg(Color::Yellow)),
+        TimerState::Idle { time } => (time.format(2), Color::default()),
+        TimerState::PreInspection { time } => (time.format(2), Color::Yellow),
         TimerState::Inspection { start } => {
             let remaining = Duration::from_secs(app.config.timer.inspection_time)
                 .saturating_sub(start.elapsed())
@@ -34,14 +34,14 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
             } else {
                 Color::Green
             };
-            (remaining.format(0), Style::default().fg(color))
+            (remaining.format(0), color)
         }
         TimerState::PreRunning { start } => {
             let remaining = Duration::from_secs(app.config.timer.inspection_time)
                 .saturating_sub(start.elapsed())
                 .max(Duration::from_secs(1));
 
-            (remaining.format(0), Style::default().fg(Color::Yellow))
+            (remaining.format(0), Color::Yellow)
         }
         TimerState::Running { start } => (
             if app.config.timer.hide_timer_while_solving {
@@ -49,7 +49,7 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
             } else {
                 start.elapsed().format(1)
             },
-            Style::default().fg(Color::Green),
+            Color::Green,
         ),
     };
 

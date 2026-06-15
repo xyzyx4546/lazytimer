@@ -6,11 +6,8 @@ use tui_widgets::big_text::*;
 
 fn line(key: &str, value: impl std::fmt::Display, color: Color) -> Line<'_> {
     Line::from(vec![
-        Span::styled(
-            format!("{:>10}  ", key),
-            Style::default().fg(Color::Magenta),
-        ),
-        Span::styled(value.to_string(), Style::default().fg(color)),
+        Span::styled(format!("{:>10}  ", key), Color::Magenta),
+        Span::styled(value.to_string(), color),
     ])
 }
 

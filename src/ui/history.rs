@@ -8,13 +8,13 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
         .border_type(BorderType::Rounded);
 
     let header = Line::from(vec![
-        Span::styled("solve ", Style::default().fg(Color::White)),
+        Span::styled("solve ", Color::White),
         Span::raw("│    "),
-        Span::styled("time     ", Style::default().fg(Color::Green)),
+        Span::styled("time     ", Color::Green),
         Span::raw("│    "),
-        Span::styled("ao5      ", Style::default().fg(Color::Blue)),
+        Span::styled("ao5      ", Color::Blue),
         Span::raw("│    "),
-        Span::styled("ao12     ", Style::default().fg(Color::Cyan)),
+        Span::styled("ao12     ", Color::Cyan),
     ]);
 
     let separator = "──────┼─────────────┼─────────────┼─────────────";
@@ -33,16 +33,16 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
                 Span::raw("│"),
                 Span::styled(
                     format!("{:^13}", solve.format(3)),
-                    Style::default().fg(match solve.penalty {
+                    match solve.penalty {
                         Penalty::None => Color::Green,
                         Penalty::PlusTwo => Color::Yellow,
                         Penalty::Dnf => Color::Red,
-                    }),
+                    },
                 ),
                 Span::raw("│"),
-                Span::styled(format!("{:^13}", ao5), Style::default().fg(Color::Blue)),
+                Span::styled(format!("{:^13}", ao5), Color::Blue),
                 Span::raw("│"),
-                Span::styled(format!("{:^13}", ao12), Style::default().fg(Color::Cyan)),
+                Span::styled(format!("{:^13}", ao12), Color::Cyan),
             ]))
         })
         .collect();

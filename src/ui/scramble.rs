@@ -11,7 +11,7 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
 
     let widget = Paragraph::new(app.current_scramble.to_string())
         .centered()
-        .style(Style::new().fg(Color::Magenta))
+        .style(Color::Magenta)
         .wrap(Wrap::default())
         .block(block);
 

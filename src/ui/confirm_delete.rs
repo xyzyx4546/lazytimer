@@ -5,7 +5,7 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
     let block = Block::default()
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
-        .style(Style::default().fg(Color::Red));
+        .style(Color::Red);
 
     let text = vec![Line::from(format!(
         "Are you sure you want to delete Solve #{}?",

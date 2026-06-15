@@ -24,7 +24,7 @@ pub fn render(app: &App, frame: &mut Frame, area: Rect) {
     let widget = Chart::new(vec![
         Dataset::default()
             .marker(symbols::Marker::Braille)
-            .style(Style::default().fg(Color::Magenta))
+            .style(Color::Magenta)
             .data(&data)
             .graph_type(GraphType::Line),
     ])

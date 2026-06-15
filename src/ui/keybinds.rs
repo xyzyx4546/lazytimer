@@ -1,10 +1,10 @@
+use crate::app::App;
 use crokey::KeyCombination;
 use ratatui::{prelude::*, widgets::*};
-use crate::app::App;
 
 fn line(key: KeyCombination, value: &'_ str) -> Line<'_> {
     Line::from(vec![
-        Span::styled(format!("{:>10}", key.to_string()), Style::default().fg(Color::Magenta)),
+        Span::styled(format!("{:>10}", key.to_string()), Color::Magenta),
         Span::raw(format!("   {}", value)),
     ])
 }
