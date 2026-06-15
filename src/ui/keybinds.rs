@@ -20,6 +20,7 @@ pub fn render(frame: &mut Frame, area: Rect) {
         line("Esc", "Close popup"),
         line("Enter", "Confirm"),
         line("Space", "Start/stop timer"),
+        line("v", "Toggle ghost mode"),
         Line::raw(""),
         line("h / ←", "Previous puzzle type"),
         line("j / ↓", "Previous solve"),

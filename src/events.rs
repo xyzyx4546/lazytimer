@@ -77,6 +77,9 @@ pub fn handle_key(app: &mut App, key: KeyCombination) -> Result<()> {
             c if c == binds.show_keybinds => {
                 app.popup = Some(PopupType::Keybinds);
             }
+            c if c == binds.toggle_ghost_mode => {
+                app.ghost_mode = !app.ghost_mode;
+            }
 
             c if c == binds.delete_solve && app.selected_solve().is_some() => {
                 app.popup = Some(PopupType::ConfirmDelete);
@@ -118,7 +121,9 @@ pub fn handle(app: &mut App) -> Result<()> {
         let key = KeyCombination::from(key_event);
         let kind = key_event.kind;
 
-        if let TimerState::Running { start } = app.timer_state {
+        if !app.ghost_mode
+            && let TimerState::Running { start } = app.timer_state
+        {
             let time = start.elapsed();
             app.timer_state = TimerState::Idle { time };
             app.add_solve(Solve {

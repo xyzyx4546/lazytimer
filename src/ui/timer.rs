@@ -8,9 +8,18 @@ use tui_widgets::big_text::*;
 
 pub fn render(app: &App, frame: &mut Frame, area: Rect) {
     let block = Block::default()
-        .title("Timer")
+        .title(if app.ghost_mode {
+            "Timer (Ghost Mode)"
+        } else {
+            "Timer"
+        })
         .borders(Borders::ALL)
-        .border_type(BorderType::Rounded);
+        .border_type(BorderType::Rounded)
+        .style(if app.ghost_mode {
+            Color::Blue
+        } else {
+            Color::White
+        });
 
     let (text, style) = match app.timer_state {
         TimerState::Idle { time } => (time.format(2), Style::default()),

@@ -24,20 +24,20 @@ pub enum PopupType {
 }
 
 pub struct App {
-    pub exiting: bool,
-
     pub config: Config,
+
+    pub exiting: bool,
+    pub popup: Option<PopupType>,
 
     pub timer_state: TimerState,
     pub current_scramble: String,
-
-    pub sessions: HashMap<PuzzleType, Vec<Solve>>,
     pub selected_puzzle_type: PuzzleType,
     pub selected_solve_idx: usize,
+    pub ghost_mode: bool,
+
+    pub sessions: HashMap<PuzzleType, Vec<Solve>>,
     pub ao5: Vec<Option<Duration>>,
     pub ao12: Vec<Option<Duration>>,
-
-    pub popup: Option<PopupType>,
 }
 
 impl Default for App {
@@ -48,18 +48,22 @@ impl Default for App {
         }
 
         Self {
-            exiting: false,
             config: Config::default(),
+
+            exiting: false,
+            popup: None,
+
             timer_state: TimerState::Idle {
                 time: Duration::from_secs(0),
             },
             current_scramble: String::new(),
-            sessions,
             selected_puzzle_type: PuzzleType::ThreeByThree,
             selected_solve_idx: 0,
+            ghost_mode: false,
+
+            sessions,
             ao5: vec![],
             ao12: vec![],
-            popup: None,
         }
     }
 }

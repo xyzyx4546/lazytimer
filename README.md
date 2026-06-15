@@ -7,6 +7,7 @@ A terminal-based speedcubing timer written in Rust.
 ## Features
 
 - Timer with inspection mode
+- Ghost mode for practicing without saving solves to your history
 - Support for multiple puzzle types (2x2, 3x3, 4x4, 5x5, Skewb, Pyraminx)
 - Solve statistics & graph
 - Scramble generation
@@ -97,6 +98,7 @@ show_keybinds = "?"
 cancel = "Esc"
 confirm = "Enter"
 start_timer = "Space"
+toggle_ghost_mode = "v"
 # Solve actions
 delete_solve = "d"
 solve_details = "i"

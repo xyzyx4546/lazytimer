@@ -33,6 +33,7 @@ pub struct KeybindsConfig {
     pub cancel: KeyCombination,
     pub confirm: KeyCombination,
     pub start_timer: KeyCombination,
+    pub toggle_ghost_mode: KeyCombination,
 
     pub delete_solve: KeyCombination,
     pub solve_details: KeyCombination,
@@ -75,6 +76,7 @@ impl Default for KeybindsConfig {
             cancel: key!(esc),
             confirm: key!(enter),
             start_timer: key!(space),
+            toggle_ghost_mode: key!(v),
 
             delete_solve: key!(d),
             solve_details: key!(i),
