@@ -58,7 +58,7 @@ pub fn draw(app: &App, terminal: &mut DefaultTerminal) -> Result<()> {
 
         if let Some(popup_type) = &app.popup {
             let (height, width) = match popup_type {
-                PopupType::Keybinds => (21, 50),
+                PopupType::Keybinds => (25, 50),
                 PopupType::ConfirmDelete => (3, 70),
                 PopupType::SolveDetails => (12, 80),
             };
@@ -84,7 +84,7 @@ pub fn draw(app: &App, terminal: &mut DefaultTerminal) -> Result<()> {
             frame.render_widget(Clear, area);
 
             match popup_type {
-                PopupType::Keybinds => keybinds::render(frame, area),
+                PopupType::Keybinds => keybinds::render(app, frame, area),
                 PopupType::ConfirmDelete => confirm_delete::render(app, frame, area),
                 PopupType::SolveDetails => solve_details::render(app, frame, area),
             }

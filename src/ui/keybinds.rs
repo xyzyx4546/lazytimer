@@ -1,38 +1,44 @@
+use crokey::KeyCombination;
 use ratatui::{prelude::*, widgets::*};
+use crate::app::App;
 
-fn line<'a>(key: &'a str, value: &'a str) -> Line<'a> {
+fn line(key: KeyCombination, value: &'_ str) -> Line<'_> {
     Line::from(vec![
-        Span::styled(format!("{:>8}", key), Style::default().fg(Color::Magenta)),
-        Span::raw(format!("  {}", value)),
+        Span::styled(format!("{:>10}", key.to_string()), Style::default().fg(Color::Magenta)),
+        Span::raw(format!("   {}", value)),
     ])
 }
 
-pub fn render(frame: &mut Frame, area: Rect) {
+pub fn render(app: &App, frame: &mut Frame, area: Rect) {
     let block = Block::default()
         .title("Keybinds")
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded);
 
+    let binds = &app.config.keybinds;
     let text = vec![
         Line::raw(""),
-        line("?", "Show keybinds"),
-        line("q", "Quit"),
-        line("Esc", "Close popup"),
-        line("Enter", "Confirm"),
-        line("Space", "Start/stop timer"),
-        line("v", "Toggle ghost mode"),
+        Line::styled("             Navigation", Color::Blue),
+        line(binds.previous_puzzle, "Previous puzzle type"),
+        line(binds.previous_solve, "Previous solve"),
+        line(binds.next_solve, "Next solve"),
+        line(binds.next_puzzle, "Next puzzle type"),
+        line(binds.first_solve, "Go to first solve"),
+        line(binds.last_solve, "Go to last solve"),
         Line::raw(""),
-        line("h / ←", "Previous puzzle type"),
-        line("j / ↓", "Previous solve"),
-        line("k / ↑", "Next solve"),
-        line("l / →", "Next puzzle type"),
-        line("g", "Go to first solve"),
-        line("G", "Go to last solve"),
+        Line::styled("             Global Actions", Color::Blue),
+        line(binds.show_keybinds, "Show keybinds"),
+        line(binds.quit, "Quit"),
+        line(binds.cancel, "Cancel"),
+        line(binds.confirm, "Confirm"),
+        line(binds.start_timer, "Start timer"),
+        line(binds.toggle_ghost_mode, "Toggle ghost mode"),
         Line::raw(""),
-        line("i", "Show solve details"),
-        line("+", "Toggle +2 penalty"),
-        line("-", "Toggle DNF penalty"),
-        line("d", "Delete selected solve"),
+        Line::styled("             Solve Actions", Color::Blue),
+        line(binds.solve_details, "Show solve details"),
+        line(binds.toggle_plus_two, "Toggle +2 penalty"),
+        line(binds.toggle_dnf, "Toggle DNF penalty"),
+        line(binds.delete_solve, "Delete selected solve"),
     ];
 
     let widget = Paragraph::new(text).block(block);
