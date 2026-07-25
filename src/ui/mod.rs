@@ -33,7 +33,7 @@ pub fn draw(app: &App, terminal: &mut DefaultTerminal) -> Result<()> {
             let width = main_layout[2].width.saturating_sub(4);
             (app.current_scramble.len() as u16)
                 .checked_div(width)
-                .map_or(3, |q| q.saturating_sub(3))
+                .map_or(3, |q| q.saturating_add(3))
         };
 
         let right_layout =
